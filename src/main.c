@@ -1,34 +1,24 @@
-#include "def.h"
-#include "backend.h"
-
+#include "colors.h"
+#include "triangle.h"
+#include "renderer.h"
+#include "shape.h"
 
 void update() {
-    struct triangle t = create_triangle();
-    COLOR colors[3] = {
-        RED,
-        RED,
-        BLUE
+    GLfloat pyramid_points[][3] = {
+        {0.0f, 1.0f, 0.0f}, // Sommet de la pyramide
+        {-1.0f, 0.0f, -1.0f}, // Coin arrière gauche de la base
+        {1.0f, 0.0f, -1.0f}, // Coin arrière droit de la base
+        {1.0f, 0.0f, 1.0f}, // Coin avant droit de la base
+        {-1.0f, 0.0f, 1.0f} // Coin avant gauche de la base
     };
-    set_color(&t, colors);
-
-    draw_triangle(t);
-
-    struct triangle t2 = create_triangle();
-    COLOR colors2[3] = {
-        BLUE,
-        PINK,
-        BLUE
-    };
-    set_color(&t2, colors2);
-    set_pos(&t2, (GLfloat[3][3]){
-                {0.5f, -0.5f, 0.5f},
-                {1.5f, -0.5f, 0.5f},
-                {1.0f, 0.5f, 0.5f}
-            });
-
-    draw_triangle(t2);
+    SHAPE shape1 = create_shape(pyramid_points, 5, RED);
+    triangulate_and_render(&shape1);
 }
 
+
 int main(int argc, char *argv[]) {
+    initialize_renderer();
     main_loop(&update);
+    cleanup_renderer();
+    return 0;
 }
