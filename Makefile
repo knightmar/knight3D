@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -O2
 LDFLAGS = -lSDL2 -lGL -lGLU
-SRC = $(wildcard src/*.c)
+SRC = $(shell find src -name '*.c')
 BIN = sdl3d
 
 all: $(BIN)

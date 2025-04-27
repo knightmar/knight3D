@@ -9,7 +9,8 @@ void initialize_renderer() {
         exit(1);
     }
 
-    window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+    window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 1200,
+                              SDL_WINDOW_OPENGL);
     if (!window) {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -23,7 +24,16 @@ void initialize_renderer() {
     glEnable(GL_DEPTH_TEST);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-1.5, 1.5, -1.5, 1.5, -1.5, 3);
+    float fov = 45.0f;
+    float aspect = 1.0f;
+    float near = 0.1f;
+    float far = 100.0f;
+    float top = near * tanf(fov * 0.5f * M_PI / 180.0f);
+    float bottom = -top;
+    float right = top * aspect;
+    float left = -right;
+
+    glFrustum(left, right, bottom, top, near, far);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -33,7 +43,7 @@ void render_triangle(const TRIANGLE *triangle) {
     glBegin(GL_TRIANGLES);
     for (int i = 0; i < 3; i++) {
         glColor3ub(triangle->colors[i].r, triangle->colors[i].g, triangle->colors[i].b);
-        glVertex3fv(triangle->points[i]);
+        glVertex3f(triangle->points[i].x, triangle->points[i].y, triangle->points[i].z);
     }
     glEnd();
 }
@@ -51,7 +61,7 @@ void main_loop(void (*draw)(void)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
-        glTranslatef(0.0f, 0.0f, -2.0f);
+        glTranslatef(0.0f, 0.0f, -10.0f);
         glRotatef(SDL_GetTicks() * 0.05f, 1, 1, 1);
 
         draw();
