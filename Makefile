@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -O2
-LDFLAGS = -lSDL2 -lGL -lGLU
+LDFLAGS = -lSDL2 -lGL -lGLU -lm
 SRC = $(shell find src -name '*.c')
 BIN = sdl3d
 

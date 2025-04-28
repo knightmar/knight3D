@@ -2,6 +2,8 @@
 
 static SDL_Window *window = NULL;
 static SDL_GLContext gl_context;
+static SDL_Renderer *renderer = NULL;
+
 
 void initialize_renderer() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -10,9 +12,16 @@ void initialize_renderer() {
     }
 
     window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 1200,
-                              SDL_WINDOW_OPENGL);
+                              SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!window) {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
+        SDL_Quit();
+        exit(1);
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (!renderer) {
+        fprintf(stderr, "Renderer creation failed: %s\n", SDL_GetError());
         SDL_Quit();
         exit(1);
     }
@@ -61,7 +70,7 @@ void main_loop(void (*draw)(void)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
-        glTranslatef(0.0f, 0.0f, -10.0f);
+        glTranslatef(0.0f, 0.0f, -30.0f);
         glRotatef(SDL_GetTicks() * 0.05f, 1, 1, 1);
 
         draw();

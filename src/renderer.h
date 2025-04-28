@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 #include <stdbool.h>
+#include <math.h>
 #include "objects/triangle.h"
 
 void initialize_renderer();
