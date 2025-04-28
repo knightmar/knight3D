@@ -7,7 +7,7 @@
 #include "triangle.h"
 
 typedef struct {
-    Point (*points);
+    Point *points;
     int point_count;
     COLOR color;
     COLOR edge_color;

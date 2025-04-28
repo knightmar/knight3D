@@ -1,7 +1,6 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#include <GL/gl.h>
 #include "point.h"
 
 typedef struct {
