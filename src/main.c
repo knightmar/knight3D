@@ -27,7 +27,7 @@ void update() {
 }
 
 void setup() {
-    OBJ_FILE *obj = read_obj_file("/home/knightmar/code/knight3D/ressources/TeapotTrue.obj");
+    OBJ_FILE *obj = read_obj_file("/home/knightmar/code/sdl3d/ressources/IS.obj");
 
     shape = &obj->shape;
 }
