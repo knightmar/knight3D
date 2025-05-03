@@ -7,7 +7,7 @@
 #include <math.h>
 #include "objects/triangle.h"
 
-void initialize_renderer();
+void initialize_renderer(void (*setup)(void));
 void render_triangle(const TRIANGLE *triangle);
 void main_loop(void (*draw)(void));
 void cleanup_renderer();

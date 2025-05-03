@@ -2,30 +2,39 @@
 #include "objects/triangle.h"
 #include "renderer.h"
 #include "objects/shape.h"
+#include "obj_files/obj_parser.h"
+
+
+
+
+void hand_points() {
+    Point p[] = {
+        {1.7410, -0.0000, 0.3113},
+        {1.5342, 0.7715, 0.3113},
+        {0.9695, 1.3363, 0.3113},
+        {0.1979, 1.5430, 0.3113},
+        {-0.5736, 1.3363, 0.3113},
+        {-1.1384, 0.7715, 0.3113},
+        {-1.3451, -0.0000, 0.3113}
+    };
+
+    SHAPE a = create_shape(p, sizeof(p) / sizeof(Point), RED, BLACK);
+}
+SHAPE *shape = NULL;
 
 void update() {
-    for (int j = 0; j < 10; j++) {
-        int i = 2 * j;
-        Point cube[] = {
-            {-0.3 + i * 0.8, -0.4 + i * 0.12, -0.2 + i * 0.05},
-            {-0.7 + i * 1.2, -0.5 + i * 0.09, -0.6 + i * 0.15},
-            {-0.1 + i * 0.5, -0.6 + i * 0.2, -0.4 + i * 0.1},
-            {-0.2 + i * 1.5, -0.3 + i * 0.1, -0.5 + i * 0.05},
-            {-0.6 + i * 0.7, -0.2 + i * 0.18, -0.1 + i * 0.08},
-            {-0.4 + i * 1.0, -0.7 + i * 0.05, -0.3 + i * 0.2},
-            {-0.5 + i * 0.9, -0.8 + i * 0.11, -0.4 + i * 0.07},
-            {-0.2 + i * 1.1, -0.1 + i * 0.13, -0.5 + i * 0.09},
-            {-0.8 + i * 0.6, -0.9 + i * 0.04, -0.2 + i * 0.06},
-            {-0.3 + i * 1.3, -0.5 + i * 0.07, -0.6 + i * 0.14}
-        };
-        SHAPE shape1 = create_shape(cube, sizeof(cube) / sizeof(Point), BLUE, YELLOW);
-        triangulate_and_render(&shape1);
-    }
+    render_shape(shape);
+}
+
+void setup() {
+    OBJ_FILE *obj = read_obj_file("/home/knightmar/code/knight3D/ressources/TeapotTrue.obj");
+
+    shape = &obj->shape;
 }
 
 
-int main(int argc, char *argv[]) {
-    initialize_renderer();
+int main() {
+    initialize_renderer(&setup);
     main_loop(&update);
     cleanup_renderer();
     return 0;
