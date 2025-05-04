@@ -1,8 +1,41 @@
 #include "renderer.h"
 
+#include "objects/shape.h"
+
 static SDL_Window *window = NULL;
 static SDL_GLContext gl_context;
 static SDL_Renderer *renderer = NULL;
+
+
+
+GLuint modelview_loc, projection_loc;
+
+void setup_vao_vbo(SHAPE *shape) {
+    // Create VAO
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Create VBO for vertex positions
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * shape->triangle_count * 3, shape->triangles, GL_STATIC_DRAW);
+
+    // Create VBO for vertex colors
+    glGenBuffers(1, &color_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(COLOR) * shape->triangle_count * 3, shape->triangles, GL_STATIC_DRAW);
+
+    // Bind position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Bind color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(1);
+
+    modelview_loc = glGetUniformLocation(shader_program, "modelview");
+    projection_loc = glGetUniformLocation(shader_program, "projection");
+}
 
 
 void initialize_renderer(void (*setup)(void)) {
