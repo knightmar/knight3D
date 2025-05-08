@@ -6,43 +6,61 @@ static SDL_Window *window = NULL;
 static SDL_GLContext gl_context;
 static SDL_Renderer *renderer = NULL;
 
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
-GLuint modelview_loc, projection_loc;
 
 void setup_vao_vbo(SHAPE *shape) {
-    // Create VAO
+    if (!shape || !shape->triangles) return;
+
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // Create VBO for vertex positions
+    // Flatten triangle data
+    Point *vertices = malloc(sizeof(Point) * shape->triangle_count * 3);
+    COLOR *colors = malloc(sizeof(COLOR) * shape->triangle_count * 3);
+
+    for (int i = 0; i < shape->triangle_count; i++) {
+        for (int j = 0; j < 3; j++) {
+            vertices[i * 3 + j] = shape->triangles[i].points[j];
+            colors[i * 3 + j] = shape->triangles[i].colors[j];
+        }
+    }
+
+    // Upload vertex data
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * shape->triangle_count * 3, shape->triangles, GL_STATIC_DRAW);
-
-    // Create VBO for vertex colors
-    glGenBuffers(1, &color_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(COLOR) * shape->triangle_count * 3, shape->triangles, GL_STATIC_DRAW);
-
-    // Bind position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * shape->triangle_count * 3, vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glEnableVertexAttribArray(0);
 
-    // Bind color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    // Upload color data
+    glGenBuffers(1, &color_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(COLOR) * shape->triangle_count * 3, colors, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void *)0);
     glEnableVertexAttribArray(1);
 
-    modelview_loc = glGetUniformLocation(shader_program, "modelview");
-    projection_loc = glGetUniformLocation(shader_program, "projection");
-}
+    free(vertices);
+    free(colors);
 
+    modelview_loc = glGetUniformLocation(shader_program, "u_modelview");
+    projection_loc = glGetUniformLocation(shader_program, "u_projection");
+}
 
 void initialize_renderer(void (*setup)(void)) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "SDL Init Error: %s\n", SDL_GetError());
         exit(1);
     }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 1200,
                               SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -52,44 +70,19 @@ void initialize_renderer(void (*setup)(void)) {
         exit(1);
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer) {
-        fprintf(stderr, "Renderer creation failed: %s\n", SDL_GetError());
-        SDL_Quit();
+    gl_context = SDL_GL_CreateContext(window);
+    SDL_GL_SetSwapInterval(1); // VSync
+
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        fprintf(stderr, "GLEW Init Failed: %s\n", glewGetErrorString(err));
         exit(1);
     }
 
-    gl_context = SDL_GL_CreateContext(window);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetSwapInterval(1);
-
     glEnable(GL_DEPTH_TEST);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    float fov = 45.0f;
-    float aspect = 1.0f;
-    float near = 0.001f;
-    float far = 1000.0f;
-    float top = near * tanf(fov * 0.5f * M_PI / 180.0f);
-    float bottom = -top;
-    float right = top * aspect;
-    float left = -right;
-
-    glFrustum(top, bottom, left, right, near, far);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     setup();
-}
-
-void render_triangle(const TRIANGLE *triangle) {
-    glBegin(GL_TRIANGLES);
-    for (int i = 0; i < 3; i++) {
-        glColor3ub(triangle->colors[i].r, triangle->colors[i].g, triangle->colors[i].b);
-        glVertex3f(triangle->points[i].x, triangle->points[i].y, triangle->points[i].z);
-    }
-    glEnd();
 }
 
 void main_loop(void (*draw)(void)) {
@@ -104,12 +97,22 @@ void main_loop(void (*draw)(void)) {
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glLoadIdentity();
-        glTranslatef(0.0f, 0.0f, -20.0f);
-        glRotatef(SDL_GetTicks() * 0.05f, 0, 1, 1.0f);
 
-        if (draw != NULL)
-            draw();
+        // Calculate camera/view/projection
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), SDL_GetTicks() * 0.0005f, glm::vec3(0.0f, 1.0f, 1.0f));
+        glm::mat4 view = glm::lookAt(
+            glm::vec3(0.0f, 0.0f, 20.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.001f, 1000.0f);
+        glm::mat4 modelview = view * model;
+
+        glUseProgram(shader_program);
+        glUniformMatrix4fv(modelview_loc, 1, GL_FALSE, glm::value_ptr(modelview));
+        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        if (draw) draw();
 
         SDL_GL_SwapWindow(window);
     }

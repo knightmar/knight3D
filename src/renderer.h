@@ -5,6 +5,9 @@
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
@@ -14,6 +17,8 @@
 #include "utils/shaders.h"
 
 GLuint vao, vbo, color_vbo;
+GLuint modelview_loc, projection_loc;
+
 
 void initialize_renderer(void (*setup)(void));
 void render_triangle(const TRIANGLE *triangle);

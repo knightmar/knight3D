@@ -34,4 +34,7 @@ const char *fragment_shader_source = R"(
     }
 )";
 
+void initialize_shaders();
+
+
 #endif //SHADERS_H
