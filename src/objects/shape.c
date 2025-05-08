@@ -1,13 +1,12 @@
 //
 // Created by knightmar on 26/04/25.
 //
-#include "../objects/shape.h"
 
+#include "../renderer.h"
+#include "../objects/shape.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "../renderer.h"
 #include "../utils/colors.h"
 
 void triangulate(SHAPE *shape, Point *points, int point_count) {
@@ -51,15 +50,16 @@ void render_shape(SHAPE *shape) {
         TRIANGLE triangle = shape->triangles[i];
         render_triangle(&triangle);
 
-        glColor3ub(shape->edge_color.r, shape->edge_color.g, shape->edge_color.b);
-        glBegin(GL_LINES);
-        for (int j = 0; j < 3; j++) {
-            Point p1 = triangle.points[j];
-            Point p2 = triangle.points[(j + 1) % 3];
-            glVertex3f(p1.x, p1.y, p1.z);
-            glVertex3f(p2.x, p2.y, p2.z);
-        }
-        glEnd();
+        // Removed immediate mode edge drawing:
+        // glColor3ub(shape->edge_color.r, shape->edge_color.g, shape->edge_color.b);
+        // glBegin(GL_LINES);
+        // for (int j = 0; j < 3; j++) {
+        //     Point p1 = triangle.points[j];
+        //     Point p2 = triangle.points[(j + 1) % 3];
+        //     glVertex3f(p1.x, p1.y, p1.z);
+        //     glVertex3f(p2.x, p2.y, p2.z);
+        // }
+        // glEnd();
     }
 }
 

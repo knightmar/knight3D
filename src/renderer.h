@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <GL/gl.h>
 #include <stdbool.h>

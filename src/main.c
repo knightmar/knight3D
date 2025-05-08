@@ -1,6 +1,6 @@
+#include "renderer.h"
 #include "utils/colors.h"
 #include "objects/triangle.h"
-#include "renderer.h"
 #include "objects/shape.h"
 #include "obj_files/obj_parser.h"
 
@@ -27,7 +27,7 @@ void update() {
 }
 
 void setup() {
-    OBJ_FILE *obj = read_obj_file("/home/knightmar/code/sdl3d/ressources/IS.obj");
+    OBJ_FILE *obj = read_obj_file("/home/knightmar/code/knight3D/ressources/IS.obj");
 
     shape = &obj->shape;
 }
