@@ -11,12 +11,14 @@ static SDL_Window *window = NULL;
 static SDL_GLContext gl_context;
 static SDL_Renderer *renderer = NULL;
 
-// VAO and VBO handles
-static GLuint vao;
-static GLuint vbo_vertices;
-static GLuint vbo_colors;
-static GLuint shader_program; // Made static global
-static GLint mvp_location;    // Made static global
+// VAO and VBO handles (Removed obsolete globals for single triangles)
+// static GLuint vao;
+// static GLuint vbo_vertices;
+// static GLuint vbo_colors;
+static GLuint shader_program; // Keep shader program global
+static GLint mvp_location;    // Keep MVP location global
+static GLint useOverrideColor_location = -1; // Location for shader uniform
+static GLint overrideColor_location = -1;    // Location for shader uniform
 
 
 const int targetFPS = 60;
@@ -55,10 +57,10 @@ void initialize_renderer(void (*setup)(void)) {
         exit(1);
     }
 
-    // Create VAO and VBOs
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo_vertices);
-    glGenBuffers(1, &vbo_colors);
+    // Create VAO and VBOs (Removed obsolete globals for single triangles)
+    // glGenVertexArrays(1, &vao);
+    // glGenBuffers(1, &vbo_vertices);
+    // glGenBuffers(1, &vbo_colors);
 
     // Load shaders
     shader_program = load_shaders("src/shaders/vertex.glsl", "src/shaders/fragment.glsl"); // Use static global
@@ -66,6 +68,16 @@ void initialize_renderer(void (*setup)(void)) {
 
     // Get MVP matrix uniform location
     mvp_location = glGetUniformLocation(shader_program, "MVP"); // Use static global
+    // Get override color uniform locations
+    useOverrideColor_location = glGetUniformLocation(shader_program, "useOverrideColor");
+    overrideColor_location = glGetUniformLocation(shader_program, "overrideColor");
+
+    // Basic check for uniform locations
+    if (mvp_location == -1 || useOverrideColor_location == -1 || overrideColor_location == -1) {
+        fprintf(stderr, "Renderer Init: Failed to get uniform locations!\n");
+        // Consider exiting or handling error
+    }
+
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -73,25 +85,8 @@ void initialize_renderer(void (*setup)(void)) {
     setup();
 }
 
-void render_triangle(const TRIANGLE *triangle) {
-    // Bind VAO
-    glBindVertexArray(vao);
-
-    // Upload vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle->points), triangle->points, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    glEnableVertexAttribArray(0);
-
-    // Upload color data
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_colors);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle->colors), triangle->colors, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
-    glEnableVertexAttribArray(1);
-
-    // Draw
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
+// Removed obsolete render_triangle function
+// void render_triangle(const TRIANGLE *triangle) { ... }
 
 void main_loop(void (*draw)(void)) {
     bool running = true;
@@ -123,11 +118,10 @@ void main_loop(void (*draw)(void)) {
         glm_lookat(eye, center, up, view_matrix);
 
         // Model matrix (identity for now, object at origin)
-        // To add rotation:
-        //static float angle = 0.0f;
-        //angle += 0.01f; // Increment angle for animation
-        //glm_rotate_make(model_matrix, angle, (vec3){0.0f, 1.0f, 0.0f}); // Rotate around Y axis
-        glm_mat4_identity(model_matrix);
+        // Model matrix (make it rotate over time)
+        float angle = SDL_GetTicks() * 0.0005f; // Radians per millisecond (adjust speed)
+        glm_rotate_make(model_matrix, angle, (vec3){0.0f, 1.0f, 0.0f}); // Rotate around Y axis
+        // glm_mat4_identity(model_matrix); // Keep object at origin, only rotate
 
 
         // MVP = Projection * View * Model
@@ -160,10 +154,24 @@ void cleanup_renderer() {
     if (shader_program != 0) { // Check if shader_program is valid
         glDeleteProgram(shader_program);
     }
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo_vertices);
-    glDeleteBuffers(1, &vbo_colors);
+    // Removed deletion of obsolete global VAO/VBOs
+    // glDeleteVertexArrays(1, &vao);
+    // glDeleteBuffers(1, &vbo_vertices);
+    // glDeleteBuffers(1, &vbo_colors);
     SDL_GL_DeleteContext(gl_context);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+// Sets the override color uniforms in the shader
+void renderer_set_override_color(bool enable, float r, float g, float b) {
+    // Ensure shader program is active (optional, could assume it is)
+    // glUseProgram(shader_program); 
+
+    if (useOverrideColor_location != -1) {
+        glUniform1i(useOverrideColor_location, enable ? 1 : 0); // Use 1 for true, 0 for false for GLint uniform bool
+    }
+    if (overrideColor_location != -1 && enable) {
+        glUniform3f(overrideColor_location, r, g, b);
+    }
 }

@@ -1,6 +1,12 @@
 #ifndef COLORS_H
 #define COLORS_H
 
+// Define the COLOR struct type first
+typedef struct {
+    unsigned char r, g, b;
+} COLOR;
+
+// Define color constants using the struct
 #define RED   (COLOR){255, 0, 0}
 #define GREEN (COLOR){0, 255, 0}
 #define BLUE  (COLOR){0, 0, 255}

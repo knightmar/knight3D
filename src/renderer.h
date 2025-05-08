@@ -6,11 +6,14 @@
 #include <GL/gl.h>
 #include <stdbool.h>
 #include <math.h>
-#include "objects/triangle.h"
+// Removed: #include "objects/triangle.h"
 
 void initialize_renderer(void (*setup)(void));
-void render_triangle(const TRIANGLE *triangle);
+// Removed: void render_triangle(const TRIANGLE *triangle);
 void main_loop(void (*draw)(void));
 void cleanup_renderer();
+
+// Sets the override color uniforms in the shader
+void renderer_set_override_color(bool enable, float r, float g, float b);
 
 #endif // RENDERER_H
