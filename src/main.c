@@ -1,6 +1,6 @@
-#include "renderer.h"
 #include "utils/colors.h"
 #include "objects/triangle.h"
+#include "renderer.h"
 #include "objects/shape.h"
 #include "obj_files/obj_parser.h"
 
