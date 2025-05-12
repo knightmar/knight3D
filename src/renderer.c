@@ -1,29 +1,55 @@
 #include "renderer.h"
-#include "shader.h" // New header for shader functions
-#include <cglm/cglm.h> // Include cglm main header
-#include <math.h> // For M_PI if cglm doesn't provide it directly or for other math
 
-#ifndef M_PI // cglm might define its own or use math.h's
-    #define M_PI 3.14159265358979323846
-#endif
+#include "objects/shape.h"
 
 static SDL_Window *window = NULL;
 static SDL_GLContext gl_context;
 static SDL_Renderer *renderer = NULL;
 
-// VAO and VBO handles
-static GLuint vao;
-static GLuint vbo_vertices;
-static GLuint vbo_colors;
-static GLuint shader_program; // Made static global
-static GLint mvp_location;    // Made static global
+#include <GL/glew.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
-const int targetFPS = 60;
-const int frameDelay = 1000 / targetFPS;
 
-Uint32 frameStart;
-int frameTime;
+void setup_vao_vbo(SHAPE *shape) {
+    if (!shape || !shape->triangles) return;
+
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // Flatten triangle data
+    Point *vertices = malloc(sizeof(Point) * shape->triangle_count * 3);
+    COLOR *colors = malloc(sizeof(COLOR) * shape->triangle_count * 3);
+
+    for (int i = 0; i < shape->triangle_count; i++) {
+        for (int j = 0; j < 3; j++) {
+            vertices[i * 3 + j] = shape->triangles[i].points[j];
+            colors[i * 3 + j] = shape->triangles[i].colors[j];
+        }
+    }
+
+    // Upload vertex data
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Point) * shape->triangle_count * 3, vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glEnableVertexAttribArray(0);
+
+    // Upload color data
+    glGenBuffers(1, &color_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(COLOR) * shape->triangle_count * 3, colors, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, (void *)0);
+    glEnableVertexAttribArray(1);
+
+    free(vertices);
+    free(colors);
+
+    modelview_loc = glGetUniformLocation(shader_program, "u_modelview");
+    projection_loc = glGetUniformLocation(shader_program, "u_projection");
+}
 
 void initialize_renderer(void (*setup)(void)) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -31,13 +57,13 @@ void initialize_renderer(void (*setup)(void)) {
         exit(1);
     }
 
-    // Set OpenGL version to 3.3 core profile
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
-                             1200, 1200, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("3D Example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 1200,
+                              SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!window) {
         fprintf(stderr, "Window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
@@ -45,27 +71,13 @@ void initialize_renderer(void (*setup)(void)) {
     }
 
     gl_context = SDL_GL_CreateContext(window);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(1); // VSync
 
-    // Initialize GLEW
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Failed to initialize GLEW\n");
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        fprintf(stderr, "GLEW Init Failed: %s\n", glewGetErrorString(err));
         exit(1);
     }
-
-    // Create VAO and VBOs
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo_vertices);
-    glGenBuffers(1, &vbo_colors);
-
-    // Load shaders
-    shader_program = load_shaders("src/shaders/vertex.glsl", "src/shaders/fragment.glsl"); // Use static global
-    glUseProgram(shader_program);
-
-    // Get MVP matrix uniform location
-    mvp_location = glGetUniformLocation(shader_program, "MVP"); // Use static global
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -73,33 +85,11 @@ void initialize_renderer(void (*setup)(void)) {
     setup();
 }
 
-void render_triangle(const TRIANGLE *triangle) {
-    // Bind VAO
-    glBindVertexArray(vao);
-
-    // Upload vertex data
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle->points), triangle->points, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    glEnableVertexAttribArray(0);
-
-    // Upload color data
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_colors);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle->colors), triangle->colors, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
-    glEnableVertexAttribArray(1);
-
-    // Draw
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
 void main_loop(void (*draw)(void)) {
     bool running = true;
     SDL_Event event;
 
     while (running) {
-        frameStart = SDL_GetTicks();
-
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -108,61 +98,27 @@ void main_loop(void (*draw)(void)) {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // --- MVP MATRIX CALCULATION using cglm ---
-        mat4 projection_matrix, view_matrix, model_matrix, mvp_matrix;
+        // Calculate camera/view/projection
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), SDL_GetTicks() * 0.0005f, glm::vec3(0.0f, 1.0f, 1.0f));
+        glm::mat4 view = glm::lookAt(
+            glm::vec3(0.0f, 0.0f, 20.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.001f, 1000.0f);
+        glm::mat4 modelview = view * model;
 
-        // Projection matrix
-        float near_plane = 0.1f, far_plane = 100.0f, fov_deg = 45.0f;
-        float aspect_ratio = 1200.0f / 1200.0f; // window_width / window_height
-        glm_perspective(glm_rad(fov_deg), aspect_ratio, near_plane, far_plane, projection_matrix);
+        glUseProgram(shader_program);
+        glUniformMatrix4fv(modelview_loc, 1, GL_FALSE, glm::value_ptr(modelview));
+        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        // View matrix (camera)
-        vec3 eye    = {0.0f, 0.0f, 10.0f}; // Camera position
-        vec3 center = {0.0f, 0.0f, 0.0f};  // Look at point
-        vec3 up     = {0.0f, 1.0f, 0.0f};  // Up vector
-        glm_lookat(eye, center, up, view_matrix);
-
-        // Model matrix (identity for now, object at origin)
-        // To add rotation:
-        //static float angle = 0.0f;
-        //angle += 0.01f; // Increment angle for animation
-        //glm_rotate_make(model_matrix, angle, (vec3){0.0f, 1.0f, 0.0f}); // Rotate around Y axis
-        glm_mat4_identity(model_matrix);
-
-
-        // MVP = Projection * View * Model
-        mat4 view_model;
-        glm_mat4_mul(view_matrix, model_matrix, view_model);
-        glm_mat4_mul(projection_matrix, view_model, mvp_matrix);
-        
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*)mvp_matrix);
-
-        if (draw != NULL)
-            draw();
+        if (draw) draw();
 
         SDL_GL_SwapWindow(window);
-    frameTime = SDL_GetTicks() - frameStart;
-
-    if (frameDelay > frameTime) {
-        SDL_Delay(frameDelay - frameTime);
-    }
-    // Print frame time every ~second to check performance
-    static Uint32 lastPrintTime = 0;
-    if (SDL_GetTicks() - lastPrintTime > 1000) {
-        printf("Frame Time: %d ms\n", frameTime);
-        lastPrintTime = SDL_GetTicks();
-    }
     }
 }
 
 void cleanup_renderer() {
-    // It's good practice to detach and delete shader program
-    if (shader_program != 0) { // Check if shader_program is valid
-        glDeleteProgram(shader_program);
-    }
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo_vertices);
-    glDeleteBuffers(1, &vbo_colors);
     SDL_GL_DeleteContext(gl_context);
     SDL_DestroyWindow(window);
     SDL_Quit();
