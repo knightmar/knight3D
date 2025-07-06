@@ -11,30 +11,8 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/includes/glad-gl/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/includes/glad-gl/src/gl.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/includes/glad-gl/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ressources/IS.obj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ressources/TeapotTrue.obj" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/obj_files/obj_parser.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/obj_files/obj_parser.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/point.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/point.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/shape.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/shape.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/triangle.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/objects/triangle.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/colors.h" beforeDir="false" />
+    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="first commit">
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,11 +121,32 @@
       <option name="presentableId" value="Default" />
       <updated>1751727760474</updated>
       <workItem from="1751727761580" duration="2680000" />
-      <workItem from="1751814389078" duration="3642000" />
+      <workItem from="1751814389078" duration="3948000" />
     </task>
+    <task id="LOCAL-00001" summary="first commit">
+      <option name="closed" value="true" />
+      <created>1751818350186</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1751818350186</updated>
+    </task>
+    <task id="LOCAL-00002" summary="first commit">
+      <option name="closed" value="true" />
+      <created>1751818362499</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1751818362499</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="first commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="first commit" />
   </component>
 </project>
