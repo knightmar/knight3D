@@ -4,8 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-cgmath = "0.18.0"
 gl = "0.14.0"
-glfw = "0.59.0"
-image = "0.25.6"
-glad-gl = {path = "includes/glad-gl"}
+glfw = "0.60.0"

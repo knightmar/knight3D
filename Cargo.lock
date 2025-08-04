@@ -24,15 +24,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
-name = "approx"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f2a05fd1bd10b2527e20a2cd32d8873d115b8b39fe219ee25f42a8aca6ba278"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
 name = "arbitrary"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -158,25 +149,6 @@ name = "cfg-if"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
-
-[[package]]
-name = "cgmath"
-version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a98d30140e3296250832bbaaff83b27dcd6fa3cc70fb6f1f3e5c9c0023b5317"
-dependencies = [
- "approx",
- "num-traits",
-]
-
-[[package]]
-name = "cmake"
-version = "0.1.54"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7caa3f9de89ddbe2c607f4101924c5abec803763ae9534e4f4d7d8f84aa81f0"
-dependencies = [
- "cc",
-]
 
 [[package]]
 name = "color_quant"
@@ -344,17 +316,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "glad-gl"
-version = "2.0.8"
-
-[[package]]
 name = "glfw"
-version = "0.59.0"
+version = "0.60.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8c61a3f08ac5eb93c8dc0e9f2e6b2c7a7d14da089db39d43d696bc4fd025d4c"
+checksum = "0c06705338d7e7dd1cb128b2a427f21858fcc0c55d56caca896f4a0e699c91e1"
 dependencies = [
  "bitflags 1.3.2",
  "glfw-sys",
+ "image",
+ "log",
  "objc2",
  "raw-window-handle",
  "winapi",
@@ -362,11 +332,11 @@ dependencies = [
 
 [[package]]
 name = "glfw-sys"
-version = "5.0.0+3.3.9"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dfc32d45fb58ff38b112696907963a7d671e9cf742b16f882062169a053cf88"
+checksum = "dad17b892202f333de24337bfc49ee23fca2d1fc648370365610b43c2864ccfa"
 dependencies = [
- "cmake",
+ "pkg-config",
 ]
 
 [[package]]
@@ -486,11 +456,8 @@ checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 name = "knight3D"
 version = "0.1.0"
 dependencies = [
- "cgmath",
  "gl",
- "glad-gl",
  "glfw",
- "image",
 ]
 
 [[package]]

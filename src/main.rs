@@ -1,11 +1,14 @@
-use glad_gl::gl;
-use glad_gl::gl::{GLsizei, GLsizeiptr, GLuint};
+mod shaders;
+
+use crate::shaders::Shader;
 use glfw::Key::Escape;
 use glfw::{Context, Window};
-use std::ffi::CString;
 use std::mem::size_of;
 use std::process::exit;
 use std::ptr::null;
+use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
+use gl::types::{GLsizei, GLsizeiptr, GLuint};
+use gl;
 
 fn main() {
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
@@ -19,19 +22,14 @@ fn main() {
         .unwrap();
     glfw.make_context_current(Some(&window));
 
-    gl::load(|e| glfw.get_proc_address_raw(e) as *const _);
-
+    gl::load_with(|e| glfw.get_proc_address_raw(e).map_or(std::ptr::null(), |f| f as *const _));
     unsafe {
         gl::Viewport(0, 0, 800, 600);
     }
 
     window.set_framebuffer_size_callback(framebuffer_size_callback);
 
-    let shape: [[f32; 3]; 3] = [
-        [-0.5, -0.5, 0.0],
-        [0.5, -0.5, 0.0],
-        [0.0, 0.5, 0.0],
-    ];
+    let shape: [[f32; 3]; 3] = [[-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.0, 0.5, 0.0]];
 
     let mut vao: GLuint = 0;
     let mut vbo: GLuint = 0;
@@ -63,37 +61,8 @@ fn main() {
         gl::BindVertexArray(0);
     }
 
-    let vertex_shader_source = CString::new(
-        "#version 460 core\n\
-        layout (location = 0) in vec3 aPos;\n\
-        void main() {\n\
-            gl_Position = vec4(aPos, 1.0);\n\
-        }",
-    )
-        .unwrap();
-
-    let fragment_shader_source = CString::new(
-        "#version 460 core\n\
-        out vec4 FragColor;\n\
-        void main() {\n\
-            FragColor = vec4(1.0, 0.5, 0.2, 1.0);\n\
-        }",
-    )
-        .unwrap();
-
-    let vertex_shader = unsafe {
-        let shader = gl::CreateShader(gl::VERTEX_SHADER);
-        gl::ShaderSource(shader, 1, &vertex_shader_source.as_ptr(), null());
-        gl::CompileShader(shader);
-        shader
-    };
-
-    let fragment_shader = unsafe {
-        let shader = gl::CreateShader(gl::FRAGMENT_SHADER);
-        gl::ShaderSource(shader, 1, &fragment_shader_source.as_ptr(), null());
-        gl::CompileShader(shader);
-        shader
-    };
+    let vertex_shader = Shader::new("vertex_shader").unwrap().init_shader(VERTEX_SHADER);
+    let fragment_shader = Shader::new("fragment_shader").unwrap().init_shader(FRAGMENT_SHADER);
 
     let shader_program = unsafe {
         let program = gl::CreateProgram();
