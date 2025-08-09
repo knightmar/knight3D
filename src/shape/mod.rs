@@ -21,6 +21,15 @@ pub struct Shape<'a> {
     shader_program: GLuint,
 }
 
+/// This enums is used to dynamically set uniforms
+pub enum UniformValue {
+    Float(f32),
+    Int(i32),
+    Vec2([f32; 2]),
+    Vec3([f32; 3]),
+    Vec4([f32; 4]),
+}
+
 impl Shape<'_> {
     pub fn new<'a>(vertices: &'a [([f32; 3], [f32; 3])], indices: &'a [u32]) -> Shape<'a> {
         let mut vao: GLuint = 0;
@@ -121,9 +130,15 @@ impl Shape<'_> {
 
     /// This method is used to set a uniform based on the name and a value
     /// (Uniforms are a type of variable in opengl's shaders)
-    pub unsafe fn set_uniform(&self, name: &'static str, value: f32) {
+    pub unsafe fn set_uniform(&self, name: &'static str, value: UniformValue) {
         let i = gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
         gl::UseProgram(self.shader_program);
-        gl::Uniform1f(i, value);
+        match value {
+            UniformValue::Float(v) => gl::Uniform1f(i, v),
+            UniformValue::Int(v) => gl::Uniform1i(i, v),
+            UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
+            UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
+            UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
+        }
     }
 }

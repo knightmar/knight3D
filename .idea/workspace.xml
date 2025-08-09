@@ -11,12 +11,11 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="added colors to the vertices">
+    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="update fragment shader to include time-based color modulation and enhance documentation in main.rs, mod.rs, and shaders.rs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shaders/fragment_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/fragment_shader.glsl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shaders/vertex_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/vertex_shader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/shape/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shape/shaders.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape/shaders.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +48,9 @@
 }</component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="4QCCkXkv" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -146,7 +148,7 @@
       <workItem from="1754327717539" duration="19000" />
       <workItem from="1754327753877" duration="2065000" />
       <workItem from="1754330380662" duration="2970000" />
-      <workItem from="1754671850170" duration="9077000" />
+      <workItem from="1754671850170" duration="10417000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -188,7 +190,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754760365243</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="update fragment shader to include time-based color modulation and enhance documentation in main.rs, mod.rs, and shaders.rs">
+      <option name="closed" value="true" />
+      <created>1754770411207</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1754770411207</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -210,6 +220,7 @@
     <MESSAGE value="rewrite shaders" />
     <MESSAGE value="rewrite shapes" />
     <MESSAGE value="added colors to the vertices" />
-    <option name="LAST_COMMIT_MESSAGE" value="added colors to the vertices" />
+    <MESSAGE value="update fragment shader to include time-based color modulation and enhance documentation in main.rs, mod.rs, and shaders.rs" />
+    <option name="LAST_COMMIT_MESSAGE" value="update fragment shader to include time-based color modulation and enhance documentation in main.rs, mod.rs, and shaders.rs" />
   </component>
 </project>

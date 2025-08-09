@@ -1,6 +1,6 @@
 mod shape;
 
-use crate::shape::Shape;
+use crate::shape::{Shape, UniformValue};
 use gl;
 use gl::types::GLsizei;
 use glfw::Key::Escape;
@@ -31,13 +31,14 @@ fn main() {
 
     window.set_framebuffer_size_callback(framebuffer_size_callback);
 
-    let vertices: [([f32; 3], [f32; 3]); 3] = [
+    let vertices: [([f32; 3], [f32; 3]); 4] = [
         ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),  // haut, rouge
         ([-0.5, 0.0, 0.0], [0.0, 1.0, 0.0]), // bas gauche, rouge
         ([0.5, 0.0, 0.0], [0.0, 0.0, 1.0]),  // bas droite, rouge
+        ([3.0, -1.0, 0.0], [0.7, 0.0, 0.2]),  // bas droite, rouge
     ];
 
-    let indices: [u32; 3] = [0, 1, 2];
+    let indices: [u32; 6] = [0, 1, 2, 1, 2, 3];
 
     let mut shape = Shape::new(&vertices, &indices);
     shape.init_shaders("vertex_shader", "fragment_shader");
@@ -50,7 +51,7 @@ fn main() {
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
             shape.render();
-            shape.set_uniform("time", glfw.get_time() as f32);
+            shape.set_uniform("time", UniformValue::Float(glfw.get_time() as f32));
         }
 
         window.swap_buffers();
