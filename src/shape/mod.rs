@@ -6,6 +6,12 @@ use std::ptr::null;
 
 pub mod shaders;
 
+/// This struct represents a shape that will be rendered.
+/// # Fields :
+/// - vao / vbo / ebo : all the buffers of the shape (read about them in opengl doc)
+/// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
+/// - indices : the list holding the vertices needed to be drawn with the help of the ebo
+/// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
 pub struct Shape<'a> {
     vao: GLuint,
     vbo: GLuint,
@@ -78,6 +84,9 @@ impl Shape<'_> {
         }
     }
 
+    /// This method takes the name of the shaders and compiles them into a program shader before storing it in the struct's field
+    /// # Arguments : names of the shaders
+    /// # Effect : Updates the shader_program field of the struct
     pub fn init_shaders(&mut self, vertex_shader_name: &str, fragment_shader_name: &str) {
         let vertex_shader = Shader::new(vertex_shader_name)
             .unwrap()
@@ -97,6 +106,7 @@ impl Shape<'_> {
         };
     }
 
+    /// This method is called each frame, it binds the vertex and draws the shape
     pub unsafe fn render(&self) {
         gl::UseProgram(self.shader_program);
         gl::BindVertexArray(self.vao);
@@ -109,6 +119,8 @@ impl Shape<'_> {
         gl::BindVertexArray(0);
     }
 
+    /// This method is used to set a uniform based on the name and a value
+    /// (Uniforms are a type of variable in opengl's shaders)
     pub unsafe fn set_uniform(&self, name: &'static str, value: f32) {
         let i = gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
         gl::UseProgram(self.shader_program);

@@ -5,5 +5,5 @@ in vec3 color;
 
 uniform float time;
 void main() {
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color * abs(sin(time * 10 * abs(sin(pos.x * pos.y)))), 1.0);
 }

@@ -8,6 +8,7 @@ use glfw::{Context, Window};
 use std::process::exit;
 use std::ptr::null;
 
+/// In main, the glfw context and the window are created, gl is loaded, a shape and its indices is declared, and then the main loop starts
 fn main() {
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
     glfw.window_hint(glfw::WindowHint::ContextVersion(4, 6));
@@ -31,9 +32,9 @@ fn main() {
     window.set_framebuffer_size_callback(framebuffer_size_callback);
 
     let vertices: [([f32; 3], [f32; 3]); 3] = [
-        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),    // haut, rouge
-        ([-0.5, 0.0, 0.0], [0.0, 1.0, 0.0]),   // bas gauche, rouge
-        ([0.5, 0.0, 0.0], [0.0, 0.0, 1.0]),    // bas droite, rouge
+        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),  // haut, rouge
+        ([-0.5, 0.0, 0.0], [0.0, 1.0, 0.0]), // bas gauche, rouge
+        ([0.5, 0.0, 0.0], [0.0, 0.0, 1.0]),  // bas droite, rouge
     ];
 
     let indices: [u32; 3] = [0, 1, 2];
