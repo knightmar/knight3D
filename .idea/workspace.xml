@@ -11,13 +11,12 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="rewrite shaders">
-      <change afterPath="$PROJECT_DIR$/src/shape/mod.rs" afterDir="false" />
+    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="rewrite shapes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shaders/fragment_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/fragment_shader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shaders/vertex_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/vertex_shader.glsl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape/shaders.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shape/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +146,7 @@
       <workItem from="1754327717539" duration="19000" />
       <workItem from="1754327753877" duration="2065000" />
       <workItem from="1754330380662" duration="2970000" />
-      <workItem from="1754671850170" duration="1803000" />
+      <workItem from="1754671850170" duration="4376000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -173,7 +172,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754329797525</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="rewrite shapes">
+      <option name="closed" value="true" />
+      <created>1754757346713</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754757346713</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -193,17 +200,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="first commit" />
     <MESSAGE value="rewrite shaders" />
-    <option name="LAST_COMMIT_MESSAGE" value="rewrite shaders" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/main.rs</url>
-          <line>44</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="rewrite shapes" />
+    <option name="LAST_COMMIT_MESSAGE" value="rewrite shapes" />
   </component>
 </project>

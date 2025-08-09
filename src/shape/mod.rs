@@ -1,6 +1,7 @@
 use crate::shape::shaders::Shader;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
+use std::ffi::{c_void, CString};
 use std::ptr::null;
 
 pub mod shaders;
@@ -9,13 +10,13 @@ pub struct Shape<'a> {
     vao: GLuint,
     vbo: GLuint,
     ebo: Option<GLuint>,
-    vertices: &'a [[f32; 3]],
-    indices: &'a [u32; 6],
+    vertices: &'a [([f32; 3], [f32; 3])],
+    indices: &'a [u32],
     shader_program: GLuint,
 }
 
 impl Shape<'_> {
-    pub fn new<'a>(vertices: &'a[[f32; 3]], indices: &'a[u32; 6]) -> Shape<'a> {
+    pub fn new<'a>(vertices: &'a [([f32; 3], [f32; 3])], indices: &'a [u32]) -> Shape<'a> {
         let mut vao: GLuint = 0;
         let mut vbo: GLuint = 0;
         let mut ebo: GLuint = 0;
@@ -32,7 +33,7 @@ impl Shape<'_> {
             gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
             gl::BufferData(
                 gl::ARRAY_BUFFER,
-                (vertices.len() * size_of::<[f32; 3]>()) as GLsizeiptr,
+                (vertices.len() * size_of::<([f32; 3], [f32; 3])>()) as GLsizeiptr,
                 vertices.as_ptr() as *const _,
                 gl::STATIC_DRAW,
             );
@@ -52,10 +53,20 @@ impl Shape<'_> {
                 3,
                 gl::FLOAT,
                 gl::FALSE,
-                (3 * size_of::<f32>()) as GLsizei,
+                (6 * size_of::<f32>()) as GLsizei,
                 null(),
             );
             gl::EnableVertexAttribArray(0);
+
+            gl::VertexAttribPointer(
+                1,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                (6 * size_of::<f32>()) as GLsizei,
+                (3 * size_of::<f32>()) as *const c_void,
+            );
+            gl::EnableVertexAttribArray(1);
         }
         Shape {
             vao,
@@ -96,5 +107,11 @@ impl Shape<'_> {
             null(),
         );
         gl::BindVertexArray(0);
+    }
+
+    pub unsafe fn set_uniform(&self, name: &'static str, value: f32) {
+        let i = gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
+        gl::UseProgram(self.shader_program);
+        gl::Uniform1f(i, value);
     }
 }
