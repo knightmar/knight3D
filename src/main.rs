@@ -1,6 +1,6 @@
-mod shaders;
+mod shape;
 
-use crate::shaders::Shader;
+use shape::shaders::Shader;
 use glfw::Key::Escape;
 use glfw::{Context, Window};
 use std::mem::size_of;
@@ -9,6 +9,7 @@ use std::ptr::null;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
 use gl::types::{GLsizei, GLsizeiptr, GLuint};
 use gl;
+use crate::shape::Shape;
 
 fn main() {
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
@@ -22,57 +23,27 @@ fn main() {
         .unwrap();
     glfw.make_context_current(Some(&window));
 
-    gl::load_with(|e| glfw.get_proc_address_raw(e).map_or(std::ptr::null(), |f| f as *const _));
+    gl::load_with(|e| glfw.get_proc_address_raw(e).map_or(null(), |f| f as *const _));
     unsafe {
         gl::Viewport(0, 0, 800, 600);
     }
 
     window.set_framebuffer_size_callback(framebuffer_size_callback);
 
-    let shape: [[f32; 3]; 3] = [[-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.0, 0.5, 0.0]];
+    let vertices: [[f32; 3]; 4] = [
+        [0.5,  0.5, 0.0],   // top right
+        [0.5, -0.5, 0.0],   // bottom right
+        [-0.5, -0.5, 0.0],  // bottom left
+        [-0.5,  0.5, 0.0],  // top left
+    ];
 
-    let mut vao: GLuint = 0;
-    let mut vbo: GLuint = 0;
-    unsafe {
-        gl::GenVertexArrays(1, &mut vao);
-        gl::GenBuffers(1, &mut vbo);
+    let indices: [u32; 6] = [
+        0, 1, 3,
+        1, 2, 3
+    ];
 
-        gl::BindVertexArray(vao);
-
-        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-        gl::BufferData(
-            gl::ARRAY_BUFFER,
-            (shape.len() * size_of::<[f32; 3]>()) as GLsizeiptr,
-            shape.as_ptr() as *const _,
-            gl::STATIC_DRAW,
-        );
-
-        gl::VertexAttribPointer(
-            0,
-            3,
-            gl::FLOAT,
-            gl::FALSE,
-            (3 * size_of::<f32>()) as GLsizei,
-            null(),
-        );
-        gl::EnableVertexAttribArray(0);
-
-        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-        gl::BindVertexArray(0);
-    }
-
-    let vertex_shader = Shader::new("vertex_shader").unwrap().init_shader(VERTEX_SHADER);
-    let fragment_shader = Shader::new("fragment_shader").unwrap().init_shader(FRAGMENT_SHADER);
-
-    let shader_program = unsafe {
-        let program = gl::CreateProgram();
-        gl::AttachShader(program, vertex_shader);
-        gl::AttachShader(program, fragment_shader);
-        gl::LinkProgram(program);
-        gl::DeleteShader(vertex_shader);
-        gl::DeleteShader(fragment_shader);
-        program
-    };
+    let mut shape = Shape::new(&vertices, &indices);
+    shape.init_shaders("vertex_shader", "fragment_shader");
 
     while !window.should_close() {
         process_input(&window);
@@ -81,9 +52,7 @@ fn main() {
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
-            gl::UseProgram(shader_program);
-            gl::BindVertexArray(vao);
-            gl::DrawArrays(gl::TRIANGLES, 0, 3);
+            shape.render();
         }
 
         window.swap_buffers();

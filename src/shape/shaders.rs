@@ -30,6 +30,26 @@ impl Shader {
             gl::ShaderSource(shader, 1, &c_str.as_ptr(), null());
             gl::CompileShader(shader);
 
+            let mut success = gl::FALSE as gl::types::GLint;
+            gl::GetShaderiv(shader, gl::COMPILE_STATUS, &mut success);
+            if success != gl::TRUE as gl::types::GLint {
+                let mut len = 0;
+                gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut len);
+                let mut buffer = Vec::with_capacity(len as usize);
+                buffer.set_len((len as usize) - 1);
+                gl::GetShaderInfoLog(
+                    shader,
+                    len,
+                    std::ptr::null_mut(),
+                    buffer.as_mut_ptr() as *mut gl::types::GLchar,
+                );
+                panic!(
+                    "Erreur de compilation du shader {}: {}",
+                    self.name,
+                    String::from_utf8_lossy(&buffer)
+                );
+            }
+
             shader
         }
     }
