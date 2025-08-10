@@ -11,18 +11,8 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="refactor: update shape handling and introduce UniformValue enum for shader uniforms">
-      <change afterPath="$PROJECT_DIR$/src/shader/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/texture/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/textures/dummy.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shaders/fragment_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/fragment_shader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shaders/vertex_shader.glsl" beforeDir="false" afterPath="$PROJECT_DIR$/shaders/vertex_shader.glsl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shape/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/shape/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shape/shaders.rs" beforeDir="false" />
+    <list default="true" id="0074c76f-0702-4ff4-83a9-c9109b58154f" name="Changes" comment="texture system is working">
+      <change beforePath="$PROJECT_DIR$/src/texture/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/texture/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +147,7 @@
       <workItem from="1754327753877" duration="2065000" />
       <workItem from="1754330380662" duration="2970000" />
       <workItem from="1754671850170" duration="10778000" />
-      <workItem from="1754834657535" duration="4087000" />
+      <workItem from="1754834657535" duration="4463000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -215,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754771746859</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="texture system is working">
+      <option name="closed" value="true" />
+      <created>1754854894366</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1754854894366</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -239,6 +237,7 @@
     <MESSAGE value="added colors to the vertices" />
     <MESSAGE value="update fragment shader to include time-based color modulation and enhance documentation in main.rs, mod.rs, and shaders.rs" />
     <MESSAGE value="refactor: update shape handling and introduce UniformValue enum for shader uniforms" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update shape handling and introduce UniformValue enum for shader uniforms" />
+    <MESSAGE value="texture system is working" />
+    <option name="LAST_COMMIT_MESSAGE" value="texture system is working" />
   </component>
 </project>

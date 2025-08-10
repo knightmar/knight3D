@@ -14,7 +14,9 @@ impl Texture {
         let img = ImageReader::open(path)
             .expect("err when opening file")
             .decode()
-            .expect("err when decode texture");
+            .expect("err when decode texture")
+            .flipv();
+
         let mut texture_id: GLuint = 0;
 
         unsafe {
