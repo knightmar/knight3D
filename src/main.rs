@@ -1,4 +1,6 @@
+mod shader;
 mod shape;
+mod texture;
 
 use crate::shape::{Shape, UniformValue};
 use gl;
@@ -31,16 +33,16 @@ fn main() {
 
     window.set_framebuffer_size_callback(framebuffer_size_callback);
 
-    let vertices: [([f32; 3], [f32; 3]); 4] = [
-        ([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),  // haut, rouge
-        ([-0.5, 0.0, 0.0], [0.0, 1.0, 0.0]), // bas gauche, rouge
-        ([0.5, 0.0, 0.0], [0.0, 0.0, 1.0]),  // bas droite, rouge
-        ([3.0, -1.0, 0.0], [0.7, 0.0, 0.2]),  // bas droite, rouge
+    let vertices: [([f32; 3], [f32; 3], [f32; 2]); 4] = [
+        ([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0]),
+        ([0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0]),
+        ([1.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 1.0]),
+        ([1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0]),
     ];
 
-    let indices: [u32; 6] = [0, 1, 2, 1, 2, 3];
+    let indices: [u32; 6] = [0, 1, 2, 0, 2, 3];
 
-    let mut shape = Shape::new(&vertices, &indices);
+    let mut shape = Shape::new(&vertices, &indices, "textures/dummy.png");
     shape.init_shaders("vertex_shader", "fragment_shader");
 
     while !window.should_close() {

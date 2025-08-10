@@ -2,8 +2,10 @@
 out vec4 FragColor;
 in vec3 pos;
 in vec3 color;
+in vec2 texCoord;
 
 uniform float time;
+uniform sampler2D tex;
 void main() {
-    FragColor = vec4(color * abs(sin(time * 10 * abs(sin(pos.x * pos.y)))), 1.0);
+    FragColor = texture(tex, texCoord);
 }
