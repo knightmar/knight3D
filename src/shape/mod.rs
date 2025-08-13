@@ -28,6 +28,7 @@ pub enum UniformValue {
     Vec2([f32; 2]),
     Vec3([f32; 3]),
     Vec4([f32; 4]),
+    Matrix4fv(nalgebra_glm::Mat4),
 }
 
 impl Shape<'_> {
@@ -160,6 +161,9 @@ impl Shape<'_> {
             UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
             UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
             UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
+            UniformValue::Matrix4fv(v) => {
+                gl::UniformMatrix4fv(i, 1, gl::FALSE, v.as_slice().as_ptr())
+            }
         }
     }
 }

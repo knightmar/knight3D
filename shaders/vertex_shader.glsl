@@ -4,11 +4,12 @@ layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aTexCoord;
 
 uniform float time;
+uniform mat4 transform;
 out vec3 pos;
 out vec3 color;
 out vec2 texCoord;
 void main() {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = transform * vec4(aPos, 1.0);
     pos = aPos;
     color = aColor;
     texCoord = aTexCoord;

@@ -45,6 +45,10 @@ fn main() {
     let mut shape = Shape::new(&vertices, &indices, "textures/dummy.png");
     shape.init_shaders("vertex_shader", "fragment_shader");
 
+    let mut tranform = nalgebra_glm::identity::<f32,4>();
+    tranform = nalgebra_glm::rotate(&tranform, f32::to_radians(45.0), &nalgebra_glm::vec3(0.0, 1.0, 1.0));
+    tranform = nalgebra_glm::scale(&tranform, &nalgebra_glm::vec3(2.0, 2.0, 2.0));
+
     while !window.should_close() {
         process_input(&window);
 
@@ -54,6 +58,8 @@ fn main() {
 
             shape.render();
             shape.set_uniform("time", UniformValue::Float(glfw.get_time() as f32));
+
+            shape.set_uniform("transform", UniformValue::Matrix4fv(tranform));
         }
 
         window.swap_buffers();
