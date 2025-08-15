@@ -16,7 +16,7 @@ pub struct Shape<'a> {
     vbo: GLuint,
     ebo: Option<GLuint>,
     vertices: &'a [([f32; 3], [f32; 3], [f32; 2])],
-    indices: &'a [u32],
+    indices: Option<&'a [u32]>,
     shader_program: GLuint,
     texture: Texture,
 }
@@ -34,7 +34,7 @@ pub enum UniformValue {
 impl Shape<'_> {
     pub fn new<'a>(
         vertices: &'a [([f32; 3], [f32; 3], [f32; 2])],
-        indices: &'a [u32],
+        indices: Option<&'a [u32]>,
         texture_path: &str,
     ) -> Shape<'a> {
         let mut vao: GLuint = 0;
@@ -59,13 +59,15 @@ impl Shape<'_> {
             );
 
             // EBO
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-            gl::BufferData(
-                gl::ELEMENT_ARRAY_BUFFER,
-                (indices.len() * size_of::<u32>()) as GLsizeiptr,
-                indices.as_ptr() as *const _,
-                gl::STATIC_DRAW,
-            );
+            if let Some(indices) = indices {
+                gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
+                gl::BufferData(
+                    gl::ELEMENT_ARRAY_BUFFER,
+                    (indices.len() * size_of::<u32>()) as GLsizeiptr,
+                    indices.as_ptr() as *const _,
+                    gl::STATIC_DRAW,
+                );
+            }
 
             // position attrib
             gl::VertexAttribPointer(
@@ -106,7 +108,7 @@ impl Shape<'_> {
         Shape {
             vao,
             vbo,
-            ebo: Some(ebo),
+            ebo: if ebo == 0 { None } else { Some(ebo) },
             vertices,
             indices,
             shader_program: 0,
@@ -141,12 +143,17 @@ impl Shape<'_> {
         gl::UseProgram(self.shader_program);
         gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
         gl::BindVertexArray(self.vao);
-        gl::DrawElements(
-            gl::TRIANGLES,
-            self.indices.len() as GLsizei,
-            gl::UNSIGNED_INT,
-            null(),
-        );
+        if self.indices.is_some() {
+            gl::DrawElements(
+                gl::TRIANGLES,
+                self.indices.unwrap().len() as GLsizei,
+                gl::UNSIGNED_INT,
+                null(),
+            );
+        } else {
+            gl::DrawArrays(gl::TRIANGLES, 0, self.vertices.len() as GLsizei)
+        }
+
         gl::BindVertexArray(0);
     }
 
