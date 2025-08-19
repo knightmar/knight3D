@@ -1,15 +1,16 @@
+mod scene;
 mod shader;
-mod shape;
 mod texture;
 
-use crate::shape::{Shape, UniformValue};
+use crate::scene::shape::Shape;
+use crate::scene::Scene;
 use gl;
 use glfw::Key::Escape;
 use glfw::{Context, Window};
 use std::process::exit;
 use std::ptr::null;
-use image::math;
-use nalgebra_glm::vec3;
+
+pub static mut TIME: f64 = 0.0;
 
 /// In main, the glfw context and the window are created, gl is loaded, a shape and its indices is declared, and then the main loop starts
 fn main() {
@@ -82,7 +83,10 @@ fn main() {
     let mut shape = Shape::new(&vertices, None, "textures/dummy.png");
     shape.init_shaders("vertex_shader", "fragment_shader");
 
-
+    let mut scene = Scene::new();
+    scene.add_shape(shape);
+    scene.camera.transform.translate([0.0, 1.0, 3.0]);
+    scene.camera.transform.rotate([0.0, 1.0, 0.0], 15.0);
 
     let mut last_time = glfw.get_time();
     let mut frames = 0;
@@ -92,33 +96,11 @@ fn main() {
         process_input(&window);
 
         unsafe {
+            TIME = glfw.get_time();
+
             gl::ClearColor(0.2, 0.3, 0.3, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
-
-            let mut model = nalgebra_glm::identity::<f32, 4>();
-            let mut view = nalgebra_glm::identity::<f32, 4>();
-            let mut projection = nalgebra_glm::identity::<f32, 4>();
-
-
-            model = nalgebra_glm::rotate(
-                &model,
-                glfw.get_time() as f32,
-                &vec3(0.5, 1.0, 0.0),
-            );
-            view = nalgebra_glm::translate(&view, &vec3(0.0, 0.0, -3.0));
-            projection = nalgebra_glm::perspective(f32::to_radians(45.0), 800.0 / 600.0, 0.1, 100.0);
-
-
-            shape.set_uniform("model", UniformValue::Matrix4fv(model));
-            shape.set_uniform("view", UniformValue::Matrix4fv(view));
-            shape.set_uniform("projection", UniformValue::Matrix4fv(projection));
-            shape.set_uniform("time", UniformValue::Float(glfw.get_time() as f32));
-
-
-            shape.render();
-
-
-
+            scene.render();
         }
 
         window.swap_buffers();

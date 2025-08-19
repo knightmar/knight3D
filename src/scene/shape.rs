@@ -1,7 +1,9 @@
+use crate::scene::object::{Object, Transform};
 use crate::shader::Shader;
 use crate::texture::Texture;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
+use nalgebra_glm::{Mat4, Quat};
 use std::ffi::{c_void, CString};
 use std::ptr::null;
 
@@ -11,6 +13,7 @@ use std::ptr::null;
 /// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
+#[derive(Copy, Clone)]
 pub struct Shape<'a> {
     vao: GLuint,
     vbo: GLuint,
@@ -19,6 +22,13 @@ pub struct Shape<'a> {
     indices: Option<&'a [u32]>,
     shader_program: GLuint,
     texture: Texture,
+    pub transform: Transform,
+}
+
+impl<'a> Object for Shape<'a>  {
+    fn get_matrix(&self) -> Mat4 {
+        self.transform.get_matrix()
+    }
 }
 
 /// This enums is used to dynamically set uniforms
@@ -113,6 +123,7 @@ impl Shape<'_> {
             indices,
             shader_program: 0,
             texture,
+            transform: Transform::new_empty(),
         }
     }
 
@@ -139,38 +150,45 @@ impl Shape<'_> {
     }
 
     /// This method is called each frame, it binds the vertex and draws the shape
-    pub unsafe fn render(&self) {
-        gl::UseProgram(self.shader_program);
-        gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
-        gl::BindVertexArray(self.vao);
-        if self.indices.is_some() {
-            gl::DrawElements(
-                gl::TRIANGLES,
-                self.indices.unwrap().len() as GLsizei,
-                gl::UNSIGNED_INT,
-                null(),
-            );
-        } else {
-            gl::DrawArrays(gl::TRIANGLES, 0, self.vertices.len() as GLsizei)
-        }
+    pub fn render(&self) {
+        unsafe {
+            gl::UseProgram(self.shader_program);
+            gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
+            gl::BindVertexArray(self.vao);
+            if self.indices.is_some() {
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    self.indices.unwrap().len() as GLsizei,
+                    gl::UNSIGNED_INT,
+                    null(),
+                );
+            } else {
+                gl::DrawArrays(gl::TRIANGLES, 0, self.vertices.len() as GLsizei)
+            }
 
-        gl::BindVertexArray(0);
+            gl::BindVertexArray(0);
+        }
     }
 
     /// This method is used to set a uniform based on the name and a value
     /// (Uniforms are a type of variable in opengl's shaders)
-    pub unsafe fn set_uniform(&self, name: &'static str, value: UniformValue) {
-        let i = gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
-        gl::UseProgram(self.shader_program);
-        match value {
-            UniformValue::Float(v) => gl::Uniform1f(i, v),
-            UniformValue::Int(v) => gl::Uniform1i(i, v),
-            UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
-            UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
-            UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
-            UniformValue::Matrix4fv(v) => {
-                gl::UniformMatrix4fv(i, 1, gl::FALSE, v.as_slice().as_ptr())
+    pub fn set_uniform(&self, name: &'static str, value: UniformValue) {
+        unsafe {
+            let i =
+                gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
+            gl::UseProgram(self.shader_program);
+            match value {
+                UniformValue::Float(v) => gl::Uniform1f(i, v),
+                UniformValue::Int(v) => gl::Uniform1i(i, v),
+                UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
+                UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
+                UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
+                UniformValue::Matrix4fv(v) => {
+                    gl::UniformMatrix4fv(i, 1, gl::FALSE, v.data.as_slice().as_ptr())
+                }
             }
         }
     }
+
+
 }

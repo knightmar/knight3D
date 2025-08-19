@@ -2,6 +2,7 @@ use gl::types::{GLint, GLsizei, GLuint};
 use image::ImageReader;
 use std::ffi::c_void;
 
+#[derive(Clone, Copy)]
 pub struct Texture {
     pub width: u32,
     pub height: u32,
