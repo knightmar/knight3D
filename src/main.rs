@@ -84,13 +84,12 @@ fn main() {
     scene.camera.transform.translate([0.0, 1.0, 3.0]);
     scene.camera.transform.rotate([0.0, -40.0, 0.0], 15.0);
 
-    let mut last_time = ui.glfw.get_time();
-    let mut frames = 0;
+    if let Some(mut s) = scene.shapes.get_mut(0) {
+        s.transform.rotate([1.0, 1.0, 0.0], 45.0);
+    }
 
     while (&ui.window.should_close()).not() {
-        if let Some(mut s) = scene.shapes.get_mut(0) {
-            s.transform.rotate([1.0, 1.0, 0.0], 1.0);
-        }
+
         ui.glfw.poll_events();
 
         ui.process_inputs();
@@ -109,13 +108,6 @@ fn main() {
         scene.render();
         ui.render();
 
-        frames += 1;
-        let current_time = ui.glfw.get_time();
-        if current_time - last_time >= 1.0 {
-            println!("FPS: {}", frames);
-            frames = 0;
-            last_time = current_time;
-        }
     }
 }
 

@@ -5,6 +5,9 @@ use std::ptr::null;
 pub struct Ui<'a> {
     pub glfw: Glfw,
     last_imgui_time: f64,
+    last_fps_time: f64,
+    frames: u64,
+    fps: u64,
     context: ImGuiContext,
     renderer: Renderer,
     pub window: &'a mut PWindow,
@@ -12,7 +15,11 @@ pub struct Ui<'a> {
 }
 
 impl<'a> Ui<'a> {
-    pub fn init(glfw: Glfw, window: &'a mut PWindow, events: GlfwReceiver<(f64, WindowEvent)>) -> Self {
+    pub fn init(
+        glfw: Glfw,
+        window: &'a mut PWindow,
+        events: GlfwReceiver<(f64, WindowEvent)>,
+    ) -> Self {
         let mut imgui = ImGuiContext::create();
         imgui.set_ini_filename(None);
 
@@ -23,11 +30,14 @@ impl<'a> Ui<'a> {
 
         Ui {
             glfw,
-            last_imgui_time,
+            last_imgui_time: last_imgui_time,
             context: imgui,
             renderer: imgui_renderer,
             window,
             events,
+            last_fps_time: last_imgui_time,
+            frames: 0,
+            fps: 0,
         }
     }
 
@@ -79,15 +89,23 @@ impl<'a> Ui<'a> {
 
     pub fn render(&mut self) {
         let now = self.glfw.get_time();
-        let delta = (now - self.last_imgui_time) as f32;
+        let delta = (now - self.last_fps_time) as f32;
+        self.frames += 1;
+        if delta >= 1.0 {
+            self.fps = self.frames;
+            self.frames = 0;
+            self.last_fps_time = now;
+            println!("{}", self.fps);
+        }
 
         let ui = self.context.frame();
-        ImGuiWindow::new(&ui, "Prévisualisation FBO")
+        ImGuiWindow::new(&ui, "Utils")
             .size([400.0, 300.0], Condition::FirstUseEver)
             .build(|| {
                 if ui.button("test") {
                     println!("test");
                 }
+                ui.label_text("FPS", self.fps.to_string());
             });
 
         self.renderer.render(&mut self.context);
