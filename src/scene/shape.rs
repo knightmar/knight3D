@@ -13,7 +13,7 @@ use std::ptr::null;
 /// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Shape<'a> {
     vao: GLuint,
     vbo: GLuint,
