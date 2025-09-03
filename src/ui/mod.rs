@@ -1,5 +1,5 @@
 use glfw::{Action, Context, Glfw, GlfwReceiver, MouseButton, PWindow, WindowEvent};
-use imgui::{Condition, Context as ImGuiContext, Window as ImGuiWindow};
+use imgui::{Condition, Context as ImGuiContext, Window, WindowFlags};
 use imgui_opengl_renderer::{Renderer as ImGuiRenderer, Renderer};
 use std::ptr::null;
 pub struct Ui<'a> {
@@ -27,6 +27,7 @@ impl<'a> Ui<'a> {
             glfw.get_proc_address_raw(s).map_or(null(), |p| p as _)
         });
         let last_imgui_time = glfw.get_time();
+        imgui.style_mut().touch_extra_padding = [10.0, 10.0];
 
         Ui {
             glfw,
@@ -51,6 +52,9 @@ impl<'a> Ui<'a> {
         self.last_imgui_time = now;
 
         let io = self.context.io_mut();
+
+        io.config_windows_resize_from_edges = true;
+
         let (win_w, win_h) = self.window.get_size();
         let (fb_w, fb_h) = self.window.get_framebuffer_size();
         io.delta_time = if delta > 0.0 { delta } else { 1.0 / 60.0 };
@@ -88,6 +92,7 @@ impl<'a> Ui<'a> {
     }
 
     pub fn render(&mut self) {
+        // FPS
         let now = self.glfw.get_time();
         let delta = (now - self.last_fps_time) as f32;
         self.frames += 1;
@@ -98,9 +103,17 @@ impl<'a> Ui<'a> {
             println!("{}", self.fps);
         }
 
+        self.context.style_mut().touch_extra_padding = [2.0, 10000.0];
+
+        let fixed_h = self.context.io().display_size[1];
+
         let ui = self.context.frame();
-        ImGuiWindow::new(&ui, "Utils")
-            .size([400.0, 300.0], Condition::FirstUseEver)
+
+        Window::new(&ui, "Utils")
+            .position([0.0, 0.0], Condition::Always)
+            .size_constraints([200.0, fixed_h], [f32::MAX, fixed_h])
+            .size([300.0, fixed_h], Condition::FirstUseEver)
+            .flags(WindowFlags::NO_MOVE | WindowFlags::NO_COLLAPSE | WindowFlags::NO_TITLE_BAR)
             .build(|| {
                 if ui.button("test") {
                     println!("test");
@@ -109,7 +122,6 @@ impl<'a> Ui<'a> {
             });
 
         self.renderer.render(&mut self.context);
-
         self.window.swap_buffers();
     }
 }

@@ -84,12 +84,12 @@ fn main() {
     scene.camera.transform.translate([0.0, 1.0, 3.0]);
     scene.camera.transform.rotate([0.0, -40.0, 0.0], 15.0);
 
-    if let Some(mut s) = scene.shapes.get_mut(0) {
-        s.transform.rotate([1.0, 1.0, 0.0], 45.0);
-    }
+
 
     while (&ui.window.should_close()).not() {
-
+        if let Some(mut s) = scene.shapes.get_mut(0) {
+            s.transform.rotate([1.0, 1.0, 0.0], 0.1);
+        }
         ui.glfw.poll_events();
 
         ui.process_inputs();
@@ -101,7 +101,7 @@ fn main() {
         let (fb_w, fb_h) = &ui.window.get_framebuffer_size();
         unsafe {
             gl::Viewport(0, 0, *fb_w, *fb_h);
-            gl::ClearColor(0.1, 0.1, 0.1, 1.0);
+            gl::ClearColor(0.3, 0.7, 0.5, 1.0);
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
