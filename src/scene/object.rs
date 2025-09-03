@@ -1,7 +1,7 @@
+use imgui::Ui;
 use nalgebra_glm::{Mat4, Quat};
 
-#[derive(Clone, Copy)]
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Transform {
     pub(crate) position: [f32; 3],
     pub(crate) rotation: Quat,
@@ -18,7 +18,8 @@ impl Transform {
     }
 
     pub fn rotate(&mut self, axis: [f32; 3], angle: f32) {
-        let q = nalgebra_glm::quat_angle_axis(f32::to_radians(angle), &nalgebra_glm::make_vec3(&axis));
+        let q =
+            nalgebra_glm::quat_angle_axis(f32::to_radians(angle), &nalgebra_glm::make_vec3(&axis));
         self.rotation = q * self.rotation;
     }
 
@@ -46,8 +47,9 @@ impl Transform {
             scale: [1.0, 1.0, 1.0],
         }
     }
-}
 
+    pub fn default_ui(&self, ui: &mut Ui) {}
+}
 pub trait Object {
     fn get_matrix(&self) -> Mat4;
 }

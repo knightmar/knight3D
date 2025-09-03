@@ -1,17 +1,25 @@
+use crate::scene::Scene;
 use glfw::{Action, Context, Glfw, GlfwReceiver, MouseButton, PWindow, WindowEvent};
 use imgui::{Condition, Context as ImGuiContext, Window, WindowFlags};
 use imgui_opengl_renderer::{Renderer as ImGuiRenderer, Renderer};
 use std::ptr::null;
+use std::sync::{Arc, Mutex};
+
 pub struct Ui<'a> {
     pub glfw: Glfw,
-    last_imgui_time: f64,
-    last_fps_time: f64,
-    frames: u64,
-    fps: u64,
+    pub ui_data: UIData,
     context: ImGuiContext,
     renderer: Renderer,
     pub window: &'a mut PWindow,
     events: GlfwReceiver<(f64, WindowEvent)>,
+    scene: Arc<Mutex<Scene<'a>>>,
+}
+
+struct UIData {
+    last_imgui_time: f64,
+    last_fps_time: f64,
+    frames: u64,
+    fps: u64,
 }
 
 impl<'a> Ui<'a> {
@@ -19,6 +27,7 @@ impl<'a> Ui<'a> {
         glfw: Glfw,
         window: &'a mut PWindow,
         events: GlfwReceiver<(f64, WindowEvent)>,
+        scene: Arc<Mutex<Scene<'a>>>,
     ) -> Self {
         let mut imgui = ImGuiContext::create();
         imgui.set_ini_filename(None);
@@ -31,14 +40,17 @@ impl<'a> Ui<'a> {
 
         Ui {
             glfw,
-            last_imgui_time: last_imgui_time,
+            ui_data: UIData {
+                last_imgui_time,
+                last_fps_time: last_imgui_time,
+                frames: 0,
+                fps: 0,
+            },
             context: imgui,
             renderer: imgui_renderer,
             window,
             events,
-            last_fps_time: last_imgui_time,
-            frames: 0,
-            fps: 0,
+            scene,
         }
     }
 
@@ -48,8 +60,8 @@ impl<'a> Ui<'a> {
         let mut typed_chars: Vec<char> = Vec::new();
 
         let now = self.glfw.get_time();
-        let delta = (now - self.last_imgui_time) as f32;
-        self.last_imgui_time = now;
+        let delta = (now - self.ui_data.last_imgui_time) as f32;
+        self.ui_data.last_imgui_time = now;
 
         let io = self.context.io_mut();
 
@@ -94,13 +106,13 @@ impl<'a> Ui<'a> {
     pub fn render(&mut self) {
         // FPS
         let now = self.glfw.get_time();
-        let delta = (now - self.last_fps_time) as f32;
-        self.frames += 1;
+        let delta = (now - self.ui_data.last_fps_time) as f32;
+        self.ui_data.frames += 1;
         if delta >= 1.0 {
-            self.fps = self.frames;
-            self.frames = 0;
-            self.last_fps_time = now;
-            println!("{}", self.fps);
+            self.ui_data.fps = self.ui_data.frames;
+            self.ui_data.frames = 0;
+            self.ui_data.last_fps_time = now;
+            println!("{}", self.ui_data.fps);
         }
 
         self.context.style_mut().touch_extra_padding = [2.0, 10000.0];
@@ -109,19 +121,21 @@ impl<'a> Ui<'a> {
 
         let ui = self.context.frame();
 
-        Window::new(&ui, "Utils")
+        Window::new(&ui, "Objects")
             .position([0.0, 0.0], Condition::Always)
             .size_constraints([200.0, fixed_h], [f32::MAX, fixed_h])
             .size([300.0, fixed_h], Condition::FirstUseEver)
-            .flags(WindowFlags::NO_MOVE | WindowFlags::NO_COLLAPSE | WindowFlags::NO_TITLE_BAR)
+            .flags(WindowFlags::NO_MOVE | WindowFlags::NO_COLLAPSE)
             .build(|| {
-                if ui.button("test") {
-                    println!("test");
-                }
-                ui.label_text("FPS", self.fps.to_string());
+                ui.text("Objects");
+                ui.separator();
             });
 
         self.renderer.render(&mut self.context);
         self.window.swap_buffers();
     }
+}
+
+pub trait Inspectable {
+    fn get_object_ui(&self, ui: &mut imgui::Ui);
 }

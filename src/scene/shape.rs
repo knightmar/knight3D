@@ -1,9 +1,11 @@
 use crate::scene::object::{Object, Transform};
 use crate::shader::Shader;
 use crate::texture::Texture;
+use crate::ui::Inspectable;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
-use nalgebra_glm::{Mat4, Quat};
+use imgui::Ui;
+use nalgebra_glm::Mat4;
 use std::ffi::{c_void, CString};
 use std::ptr::null;
 
@@ -13,7 +15,6 @@ use std::ptr::null;
 /// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
-#[derive(Clone)]
 pub struct Shape<'a> {
     vao: GLuint,
     vbo: GLuint,
@@ -25,9 +26,15 @@ pub struct Shape<'a> {
     pub transform: Transform,
 }
 
-impl<'a> Object for Shape<'a>  {
+impl<'a> Object for Shape<'a> {
     fn get_matrix(&self) -> Mat4 {
         self.transform.get_matrix()
+    }
+}
+
+impl<'a> Inspectable for Shape<'a> {
+    fn get_object_ui(&self, ui: &mut Ui) {
+        self.transform.default_ui(ui);
     }
 }
 
@@ -38,7 +45,7 @@ pub enum UniformValue {
     Vec2([f32; 2]),
     Vec3([f32; 3]),
     Vec4([f32; 4]),
-    Matrix4fv(nalgebra_glm::Mat4),
+    Matrix4fv(Mat4),
 }
 
 impl Shape<'_> {
@@ -189,6 +196,4 @@ impl Shape<'_> {
             }
         }
     }
-
-
 }
