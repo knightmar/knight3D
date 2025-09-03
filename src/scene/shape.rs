@@ -16,6 +16,7 @@ use std::ptr::null;
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
 pub struct Shape<'a> {
+    name: &'a str,
     vao: GLuint,
     vbo: GLuint,
     ebo: Option<GLuint>,
@@ -33,7 +34,8 @@ impl<'a> Object for Shape<'a> {
 }
 
 impl<'a> Inspectable for Shape<'a> {
-    fn get_object_ui(&self, ui: &mut Ui) {
+    fn get_object_ui(&self, ui: &Ui) {
+        ui.text(self.name);
         self.transform.default_ui(ui);
     }
 }
@@ -50,6 +52,7 @@ pub enum UniformValue {
 
 impl Shape<'_> {
     pub fn new<'a>(
+        name: &'a str,
         vertices: &'a [([f32; 3], [f32; 3], [f32; 2])],
         indices: Option<&'a [u32]>,
         texture_path: &str,
@@ -123,6 +126,7 @@ impl Shape<'_> {
         let texture = Texture::new(texture_path).unwrap();
 
         Shape {
+            name,
             vao,
             vbo,
             ebo: if ebo == 0 { None } else { Some(ebo) },

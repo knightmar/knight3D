@@ -48,7 +48,7 @@ impl Transform {
         }
     }
 
-    pub fn default_ui(&self, ui: &mut Ui) {}
+    pub fn default_ui(&self, ui: &Ui) {}
 }
 pub trait Object {
     fn get_matrix(&self) -> Mat4;

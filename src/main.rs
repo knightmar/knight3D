@@ -75,20 +75,26 @@ fn main() {
         20, 21, 22, 20, 22, 23,
     ];
 
-
-    let mut shape = Shape::new(&vertices, Some(&indices), "textures/dummy.png");
+    let mut shape = Shape::new("cube", &vertices, Some(&indices), "textures/dummy.png");
     shape.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
-
     scene.lock().unwrap().add_shape(shape);
-    scene.lock().unwrap().camera.transform.translate([0.0, 1.0, 3.0]);
-    scene.lock().unwrap().camera.transform.rotate([0.0, -40.0, 0.0], 15.0);
-
-
+    scene
+        .lock()
+        .unwrap()
+        .camera
+        .transform
+        .translate([0.0, 1.0, 3.0]);
+    scene
+        .lock()
+        .unwrap()
+        .camera
+        .transform
+        .rotate([0.0, -40.0, 0.0], 15.0);
 
     while (&ui.window.should_close()).not() {
         if let Some(mut s) = scene.lock().unwrap().shapes.get_mut(0) {
@@ -111,7 +117,6 @@ fn main() {
 
         scene.lock().unwrap().render();
         ui.render();
-
     }
 }
 

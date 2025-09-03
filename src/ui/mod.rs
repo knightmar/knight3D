@@ -127,8 +127,10 @@ impl<'a> Ui<'a> {
             .size([300.0, fixed_h], Condition::FirstUseEver)
             .flags(WindowFlags::NO_MOVE | WindowFlags::NO_COLLAPSE)
             .build(|| {
-                ui.text("Objects");
-                ui.separator();
+                let window_ui = &ui;
+                for shape in &self.scene.lock().unwrap().shapes {
+                    shape.get_object_ui(*window_ui);
+                }
             });
 
         self.renderer.render(&mut self.context);
@@ -137,5 +139,5 @@ impl<'a> Ui<'a> {
 }
 
 pub trait Inspectable {
-    fn get_object_ui(&self, ui: &mut imgui::Ui);
+    fn get_object_ui(&self, ui: &imgui::Ui);
 }
