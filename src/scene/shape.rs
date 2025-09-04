@@ -34,9 +34,16 @@ impl<'a> Object for Shape<'a> {
 }
 
 impl<'a> Inspectable for Shape<'a> {
-    fn get_object_ui(&self, ui: &Ui) {
+    fn get_object_ui(&mut self, ui: &Ui) {
         ui.text(self.name);
+        if ui.button("change") {
+            self.transform.translate([3.0, 0.0, 0.0]);
+        }
         self.transform.default_ui(ui);
+    }
+
+    fn get_object_name<'b>(&self) -> &'b str {
+        self.name
     }
 }
 

@@ -1,5 +1,7 @@
+use imgui::Ui;
 use crate::scene::object::{Object, Transform};
 use nalgebra_glm::Mat4;
+use crate::ui::Inspectable;
 
 pub struct Camera {
     pub transform: Transform,
@@ -16,6 +18,16 @@ impl Camera {
 
     pub(crate) fn get_projection_matrix(&self) -> Mat4 {
         nalgebra_glm::perspective(f32::to_radians(self.fov), self.fovy, self.near, self.far)
+    }
+}
+
+impl Inspectable for Camera {
+    fn get_object_ui(&mut self, ui: &Ui) {
+        self.transform.default_ui(ui);
+    }
+
+    fn get_object_name<'a>(&self) -> &'a str {
+        "Camera"
     }
 }
 

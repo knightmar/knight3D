@@ -96,19 +96,19 @@ fn main() {
         .transform
         .rotate([0.0, -40.0, 0.0], 15.0);
 
-    while (&ui.window.should_close()).not() {
+    while (&ui.ui_data.window.should_close()).not() {
         if let Some(mut s) = scene.lock().unwrap().shapes.get_mut(0) {
             s.transform.rotate([1.0, 1.0, 0.0], 0.1);
         }
-        ui.glfw.poll_events();
+        ui.ui_data.glfw.poll_events();
 
         ui.process_inputs();
-        process_input(&ui.window);
+        process_input(&ui.ui_data.window);
 
         unsafe {
-            TIME = ui.glfw.get_time();
+            TIME = ui.ui_data.glfw.get_time();
         }
-        let (fb_w, fb_h) = &ui.window.get_framebuffer_size();
+        let (fb_w, fb_h) = &ui.ui_data.window.get_framebuffer_size();
         unsafe {
             gl::Viewport(0, 0, *fb_w, *fb_h);
             gl::ClearColor(0.3, 0.7, 0.5, 1.0);

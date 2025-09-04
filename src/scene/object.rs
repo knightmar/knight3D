@@ -48,7 +48,11 @@ impl Transform {
         }
     }
 
-    pub fn default_ui(&self, ui: &Ui) {}
+    pub fn default_ui(&mut self, ui: &Ui) {
+        if ui.input_float3("Position", &mut self.position).build() {
+            println!("test");
+        };
+    }
 }
 pub trait Object {
     fn get_matrix(&self) -> Mat4;
