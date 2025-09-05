@@ -24,7 +24,6 @@ pub struct UIData<'a> {
     last_fps_time: f64,
     frames: u64,
     fps: u64,
-    test: i32,
 }
 
 fn translate_glfw_key(key: glfw::Key) -> Option<imgui::Key> {
@@ -123,7 +122,6 @@ impl<'a> Ui<'a> {
                 last_fps_time: last_imgui_time,
                 frames: 0,
                 fps: 0,
-                test: 0,
             },
         }
     }
@@ -195,7 +193,6 @@ impl<'a> Ui<'a> {
     }
 
     pub fn render(&mut self) {
-        // FPS
         let now = self.ui_data.glfw.get_time();
         let delta = (now - self.ui_data.last_fps_time) as f32;
         self.ui_data.frames += 1;
@@ -208,16 +205,12 @@ impl<'a> Ui<'a> {
 
         let fixed_h = self.ui_data.context.io().display_size[1];
 
-        // Prepare temp values to avoid borrowing self.ui_data while Ui is alive
-        let mut new_test = self.ui_data.test;
         let scene = self.ui_data.scene.clone();
-        {
-            let ui = self.ui_data.context.frame();
-            left_panel_ui(ui, &scene, &mut new_test, fixed_h);
-            // `ui` is dropped here at end of scope
-        }
-        // Now we can safely write back to self.ui_data
-        self.ui_data.test = new_test;
+
+        let fps_u32: u32 = self.ui_data.fps as u32;
+        let ui = self.ui_data.context.frame();
+        left_panel_ui(ui, &scene, fps_u32, fixed_h);
+
 
         self.ui_data.renderer.render(&mut self.ui_data.context);
         self.ui_data.window.swap_buffers();
@@ -226,5 +219,5 @@ impl<'a> Ui<'a> {
 
 pub trait Inspectable {
     fn get_object_ui(&mut self, ui: &imgui::Ui);
-    fn get_object_name<'a>(&self) -> &'a str;
+    fn get_object_name(&self) -> &str;
 }

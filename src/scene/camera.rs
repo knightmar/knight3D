@@ -3,6 +3,7 @@ use crate::scene::object::{Object, Transform};
 use nalgebra_glm::Mat4;
 use crate::ui::Inspectable;
 
+#[derive(Clone, Copy)]
 pub struct Camera {
     pub transform: Transform,
     pub fov: f32,
@@ -26,7 +27,7 @@ impl Inspectable for Camera {
         self.transform.default_ui(ui);
     }
 
-    fn get_object_name<'a>(&self) -> &'a str {
+    fn get_object_name(&self) -> &str {
         "Camera"
     }
 }

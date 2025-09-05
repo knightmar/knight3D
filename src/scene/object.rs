@@ -49,9 +49,8 @@ impl Transform {
     }
 
     pub fn default_ui(&mut self, ui: &Ui) {
-        if ui.input_float3("Position", &mut self.position).build() {
-            println!("test");
-        };
+        // Use hidden ID to avoid collisions within same scope if needed
+        ui.input_float3("Position##transform", &mut self.position).build();
     }
 }
 pub trait Object {

@@ -15,6 +15,7 @@ use std::ptr::null;
 /// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
+#[derive(Copy, Clone)]
 pub struct Shape<'a> {
     name: &'a str,
     vao: GLuint,
@@ -35,14 +36,10 @@ impl<'a> Object for Shape<'a> {
 
 impl<'a> Inspectable for Shape<'a> {
     fn get_object_ui(&mut self, ui: &Ui) {
-        ui.text(self.name);
-        if ui.button("change") {
-            self.transform.translate([3.0, 0.0, 0.0]);
-        }
         self.transform.default_ui(ui);
     }
 
-    fn get_object_name<'b>(&self) -> &'b str {
+    fn get_object_name(&self) -> &'a str {
         self.name
     }
 }
