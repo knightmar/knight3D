@@ -75,14 +75,14 @@ fn main() {
         20, 21, 22, 20, 22, 23,
     ];
 
-    let mut shape = Shape::new("Cube", &vertices, Some(&indices), "/home/knightmar/Android/Sdk/platforms/android-35/data/res/drawable-xxxhdpi/ic_media_route_connecting_dark_29_mtrl.png");
+    let mut shape = Shape::new("Cube", &vertices, Some(&indices), "./textures/dummy.png");
     shape.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
-    scene.lock().unwrap().add_shape(shape.clone());
+    // scene.lock().unwrap().add_shape(shape.clone());
     scene.lock().unwrap().add_shape(shape.clone());
     scene.lock().unwrap().add_shape(shape.clone());
     scene
@@ -90,13 +90,14 @@ fn main() {
         .unwrap()
         .camera
         .transform
-        .translate([0.0, 1.0, 3.0]);
+        .translate([0.0, 1.0, 15.0]);
     scene
         .lock()
         .unwrap()
         .camera
         .transform
         .rotate([0.0, -40.0, 0.0], 15.0);
+
 
     while (&ui.ui_data.window.should_close()).not() {
         scene.lock().unwrap().shapes.iter_mut().for_each(|mut x| {
@@ -105,6 +106,8 @@ fn main() {
 
         ui.ui_data.glfw.poll_events();
 
+
+
         ui.process_inputs();
         process_input(&ui.ui_data.window);
 
@@ -112,6 +115,7 @@ fn main() {
             TIME = ui.ui_data.glfw.get_time();
         }
         let (fb_w, fb_h) = &ui.ui_data.window.get_framebuffer_size();
+
         unsafe {
             gl::Viewport(0, 0, *fb_w, *fb_h);
             gl::ClearColor(0.3, 0.7, 0.5, 1.0);

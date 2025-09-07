@@ -66,7 +66,7 @@ impl<'a> Ui<'a> {
         scene: Arc<Mutex<Scene<'a>>>,
     ) -> Self {
         window.set_key_polling(true);
-        window.set_char_polling(true); // indispensable pour saisir des chiffres
+        window.set_char_polling(true);
         window.set_mouse_button_polling(true);
         window.set_scroll_polling(true);
         window.set_cursor_pos_polling(true);
@@ -74,7 +74,7 @@ impl<'a> Ui<'a> {
         let mut imgui = ImGuiContext::create();
         imgui.set_ini_filename(None);
 
-        // Initialize ImGui key map so special keys work as intended
+        // translation from imgui to glfw keys
         {
             use imgui::{ConfigFlags, Key};
             let io = imgui.io_mut();
@@ -101,13 +101,15 @@ impl<'a> Ui<'a> {
             io[Key::Y] = glfw::Key::Y as u32;
             io[Key::Z] = glfw::Key::Z as u32;
 
-            // Enable keyboard navigation (optional but improves expected behavior)
             io.config_flags |= ConfigFlags::NAV_ENABLE_KEYBOARD;
         }
 
         let imgui_renderer = ImGuiRenderer::new(&mut imgui, |s| {
             glfw.get_proc_address_raw(s).map_or(null(), |p| p as _)
         });
+
+        window.set_framebuffer_size_polling(true);
+
         let last_imgui_time = glfw.get_time();
 
         Ui {
@@ -156,6 +158,15 @@ impl<'a> Ui<'a> {
                     io.key_alt = mods.contains(glfw::Modifiers::Alt);
                     io.key_super = mods.contains(glfw::Modifiers::Super);
                 }
+                WindowEvent::FramebufferSize(w, h) => unsafe {
+                    gl::Viewport(0, 0, w, h);
+                    self.ui_data
+                        .scene
+                        .lock()
+                        .unwrap()
+                        .camera
+                        .set_aspect(w as f32, h as f32);
+                },
                 _ => {}
             }
         }
@@ -210,7 +221,6 @@ impl<'a> Ui<'a> {
         let fps_u32: u32 = self.ui_data.fps as u32;
         let ui = self.ui_data.context.frame();
         left_panel_ui(ui, &scene, fps_u32, fixed_h);
-
 
         self.ui_data.renderer.render(&mut self.ui_data.context);
         self.ui_data.window.swap_buffers();

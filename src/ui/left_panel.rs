@@ -2,6 +2,7 @@ use crate::scene::Scene;
 use crate::ui::Inspectable;
 use imgui::{Condition, Ui, Window, WindowFlags};
 use std::sync::{Arc, Mutex};
+use rand::random;
 
 pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene<'a>>>, fps: u32, fixed_h: f32) {
     Window::new(&ui, "Objects")
@@ -11,10 +12,23 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene<'a>>>, fps: u32, f
         .flags(WindowFlags::NO_MOVE | WindowFlags::NO_COLLAPSE)
         .build(|| {
             let window_ui = &ui;
-            let scene = &mut scene.lock().unwrap();
+            let mut scene = &mut scene.lock().unwrap();
+
 
             ui.text("Infos:");
             ui.text(fps.to_string());
+
+            if ui.button("Random Pos") {
+                scene.shapes.iter_mut().for_each(|mut x| {
+                    x.transform
+                        .set_position([random::<f32>() * 5.0, random::<f32>() * 5.0, random::<f32>() * 5.0]);
+                });
+            }
+
+            if ui.button("New cube") {
+                let shape1 = scene.shapes.get(0).unwrap().clone();
+                scene.add_shape(shape1);
+            }
 
             ui.separator();
             ui.text("Object list:");

@@ -52,6 +52,18 @@ impl Transform {
         // Use hidden ID to avoid collisions within same scope if needed
         ui.input_float3("Position##transform", &mut self.position).build();
     }
+
+    pub fn set_position(&mut self, position: [f32; 3]) {
+        self.position = position;
+    }
+
+    pub fn set_rotation(&mut self, rotation: Quat) {
+        self.rotation = rotation;
+    }
+
+    pub fn set_scale(&mut self, scale: [f32; 3]) {
+        self.scale = scale;
+    }
 }
 pub trait Object {
     fn get_matrix(&self) -> Mat4;
