@@ -1,11 +1,10 @@
 use crate::scene::camera::Camera;
 use crate::scene::object::Object;
-use crate::scene::shape::{Shape, UniformValue};
+use crate::shape::{Shape, UniformValue};
 use crate::TIME;
 
 pub mod camera;
 pub mod object;
-pub mod shape;
 
 pub struct Scene<'a> {
     pub shapes: Vec<Shape<'a>>,

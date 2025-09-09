@@ -1,3 +1,5 @@
+pub mod obj_parsing;
+
 use crate::scene::object::{Object, Transform};
 use crate::shader::Shader;
 use crate::texture::Texture;
@@ -15,13 +17,13 @@ use std::ptr::null;
 /// - vertices : the list of tuple holding a 3D point + color : `([x, y, z], [r, g, b])`
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct Shape<'a> {
     name: &'a str,
     vao: GLuint,
     vbo: GLuint,
     ebo: Option<GLuint>,
-    vertices: &'a [([f32; 3], [f32; 3], [f32; 2])],
+    vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>,
     indices: Option<&'a [u32]>,
     shader_program: GLuint,
     texture: Texture,
@@ -57,7 +59,7 @@ pub enum UniformValue {
 impl Shape<'_> {
     pub fn new<'a>(
         name: &'a str,
-        vertices: &'a [([f32; 3], [f32; 3], [f32; 2])],
+        vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>,
         indices: Option<&'a [u32]>,
         texture_path: &str,
     ) -> Shape<'a> {
