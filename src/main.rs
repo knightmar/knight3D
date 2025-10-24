@@ -77,18 +77,18 @@ fn main() {
         20, 21, 22, 20, 22, 23,
     ];
 
-    // let mut shape = Shape::new("Cube", Box::from(vertices), Some(&indices), "./textures/dummy.png");
-    // shape.init_shaders("vertex_shader", "fragment_shader");
+    let mut shape = Shape::new("Cube", Box::from(vertices), Some(&indices), "./textures/dummy.png");
+    shape.init_shaders("vertex_shader", "fragment_shader");
 
-    let mut shape2 = Shape::from_obj_file("cube", "./obj/CUBE.obj", "./textures/dummy.png").unwrap();
-    shape2.init_shaders("vertex_shader", "fragment_shader");
+    // let mut shape2 = Shape::from_obj_file("cube", "./obj/CUBE.obj", "./textures/dummy.png").unwrap();
+    // shape2.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
-    // scene.lock().unwrap().add_shape(shape.clone());
-    scene.lock().unwrap().add_shape(shape2.clone());
+    scene.lock().unwrap().add_shape(shape.clone());
+    // scene.lock().unwrap().add_shape(shape2.clone());
     // scene.lock().unwrap().add_shape(shape.clone());
     scene
         .lock()

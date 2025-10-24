@@ -59,7 +59,7 @@ pub enum UniformValue {
 impl Shape<'_> {
     pub fn new<'a>(
         name: &'a str,
-        vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>,
+        vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>, // pos : color : textpos
         indices: Option<&'a [u32]>,
         texture_path: &str,
     ) -> Shape<'a> {

@@ -3,7 +3,11 @@ use std::fs::File;
 use std::io::Read;
 
 impl<'a> Shape<'a> {
-    pub fn from_obj_file<'b>(name: &'a str, file: &str, texture_path: &str) -> Result<Self, String> {
+    pub fn from_obj_file<'b>(
+        name: &'a str,
+        file: &str,
+        texture_path: &str,
+    ) -> Result<Self, String> {
         let mut vertices = Vec::<[f32; 3]>::new();
 
         if let Ok(mut file) = File::open(file) {
@@ -12,16 +16,18 @@ impl<'a> Shape<'a> {
                 return Err("Error while reading file".to_string());
             }
 
-            content.split("\n").for_each(|line| {
-                let line_splited = line.split(" ").collect::<Vec<&str>>();
-                if line_splited[0].eq("v") {
-                    vertices.push([
-                        line_splited[1].parse::<f32>().unwrap(),
-                        line_splited[2].parse::<f32>().unwrap(),
-                        line_splited[3].parse::<f32>().unwrap(),
-                    ]);
-
-                    println!("Vertice found : {:#?}", vertices.last());
+            content.lines().for_each(|line| {
+                let line_splited: Vec<&str> = line.split_whitespace().collect();
+                if let Some(&"v") = line_splited.get(0) {
+                    if line_splited.len() >= 4 {
+                        if let (Ok(x), Ok(y), Ok(z)) = (
+                            line_splited[1].parse::<f32>(),
+                            line_splited[2].parse::<f32>(),
+                            line_splited[3].parse::<f32>(),
+                        ) {
+                            vertices.push([x, y, z]);
+                        }
+                    }
                 }
             });
         }
@@ -31,9 +37,7 @@ impl<'a> Shape<'a> {
 
         let x = vertices
             .iter()
-            .map(|x1| {
-                return (x1.clone(), color.clone(), texture.clone());
-            })
+            .map(|&pos| (pos, color, texture))
             .collect::<Vec<([f32; 3], [f32; 3], [f32; 2])>>();
         return Ok(Shape::new(name, Box::from(x), None, texture_path));
     }
