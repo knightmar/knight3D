@@ -32,6 +32,7 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene<'a>>>, fps: u32, f
                 scene.add_shape(shape1);
             }
 
+
             ui.separator();
             ui.text("Object list:");
 
