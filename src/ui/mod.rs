@@ -109,6 +109,7 @@ impl<'a> Ui<'a> {
         });
 
         window.set_framebuffer_size_polling(true);
+        window.set_content_scale_polling(true);
 
         let last_imgui_time = glfw.get_time();
 
@@ -166,6 +167,10 @@ impl<'a> Ui<'a> {
                         .unwrap()
                         .camera
                         .set_aspect(w as f32, h as f32);
+                },
+                WindowEvent::ContentScale(x, y) => unsafe {
+                    let (fb_w, fb_h) = self.ui_data.window.get_framebuffer_size();
+                    gl::Viewport(0, 0, fb_w, fb_h);
                 },
                 _ => {}
             }
