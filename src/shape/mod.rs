@@ -206,4 +206,12 @@ impl Shape<'_> {
             }
         }
     }
+
+    pub fn vertices(&self) -> &Box<[([f32; 3], [f32; 3], [f32; 2])]> {
+        &self.vertices
+    }
+
+    pub fn indices(&self) -> Option<&[u32]> {
+        self.indices
+    }
 }
