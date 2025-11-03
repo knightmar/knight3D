@@ -125,17 +125,16 @@ fn main() {
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
-
-
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
     scene.lock().unwrap().add_shape(shape.clone());
+    let mut x1 = shape.clone();
+    x1.transform.rotate([1.0, 0.0, 0.0], 90.0);
+    scene.lock().unwrap().add_shape(x1);
     // scene.lock().unwrap().add_shape(shape2.clone());
     // scene.lock().unwrap().add_shape(shape.clone());
 
-
-    let mut renderer =
-        ColorRenderer::init("vertex_shader", "fragment_shader", scene.clone());
+    let mut renderer = ColorRenderer::init("vertex_shader", "fragment_shader", scene.clone());
     renderer.init_buffers();
 
     scene
