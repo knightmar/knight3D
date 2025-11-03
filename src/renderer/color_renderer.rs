@@ -24,8 +24,6 @@ pub struct ColorRenderer {
 impl Renderer for ColorRenderer{
     fn init_buffers(&mut self) {
         let obj_list = self.get_obj_list();
-        let pos: Vec<&Box<[[f32; 3]]>> = obj_list.iter().map(|x| x.vertices()).collect();
-        let colors: Vec<&Box<[[f32; 3]]>> = obj_list.iter().map(|x| x.colors()).collect();
         let indices: Option<Vec<Vec<u32>>> = obj_list.iter().map(|x| x.indices()).collect();
 
         let positions_refs: Vec<&Box<[[f32; 3]]>> = obj_list.iter().map(|x| x.vertices()).collect();
@@ -121,7 +119,7 @@ impl Renderer for ColorRenderer{
                 gl::DYNAMIC_DRAW, // Matrices will change
             );
 
-            let mat4_size = std::mem::size_of::<Mat4>();
+            let mat4_size = size_of::<Mat4>();
             let vec4_size = size_of::<nalgebra_glm::Vec4>();
 
             let first_mat4_attrib_location = 2;
@@ -167,10 +165,6 @@ impl Renderer for ColorRenderer{
 
             self.set_uniform("view", UniformValue::Matrix4fv(view_matrix));
             self.set_uniform("projection", UniformValue::Matrix4fv(projection_matrix));
-
-            for shape in &self.get_obj_list() {
-                self.set_uniform("model", UniformValue::Matrix4fv(shape.get_matrix()));
-            }
 
             if self.indices_count > 0 {
                 gl::DrawElementsInstanced(
