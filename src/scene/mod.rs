@@ -1,3 +1,4 @@
+use crate::renderer::Renderer;
 use crate::scene::camera::Camera;
 use crate::scene::object::Object;
 use crate::shape::Shape;

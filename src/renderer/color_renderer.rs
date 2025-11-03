@@ -21,7 +21,7 @@ pub struct ColorRenderer {
     scene: Arc<Mutex<Scene>>,
 }
 
-impl Renderer for ColorRenderer{
+impl Renderer for ColorRenderer {
     fn init_buffers(&mut self) {
         let obj_list = self.get_obj_list();
         let indices: Option<Vec<Vec<u32>>> = obj_list.iter().map(|x| x.indices()).collect();
@@ -149,8 +149,10 @@ impl Renderer for ColorRenderer{
             gl::UseProgram(self.shader_program);
             gl::BindVertexArray(self.vao);
 
-            let model_matrices: Vec<Mat4> =
-                self.get_obj_list().iter().map(|s| s.get_matrix()).collect();
+            let scene_guard = self.scene.lock().unwrap();
+            let obj_list = &scene_guard.shapes;
+
+            let model_matrices: Vec<Mat4> = obj_list.iter().map(|s| s.get_matrix()).collect();
             gl::BindBuffer(gl::ARRAY_BUFFER, self.model_matrix_vbo);
             gl::BufferSubData(
                 gl::ARRAY_BUFFER,
@@ -158,10 +160,10 @@ impl Renderer for ColorRenderer{
                 (model_matrices.len() * size_of::<Mat4>()) as GLsizeiptr,
                 model_matrices.as_ptr() as *const gl::types::GLvoid,
             );
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0); // Unbind
+            // Pas besoin de délier ici, car le VAO gère les liaisons d'attributs
 
-            let view_matrix = self.scene.lock().unwrap().camera.get_view_matrix();
-            let projection_matrix = self.scene.lock().unwrap().camera.get_projection_matrix();
+            let view_matrix = scene_guard.camera.get_view_matrix();
+            let projection_matrix = scene_guard.camera.get_projection_matrix();
 
             self.set_uniform("view", UniformValue::Matrix4fv(view_matrix));
             self.set_uniform("projection", UniformValue::Matrix4fv(projection_matrix));
@@ -172,14 +174,14 @@ impl Renderer for ColorRenderer{
                     self.indices_count as i32,
                     gl::UNSIGNED_INT,
                     null(),
-                    self.get_obj_list().len() as i32,
+                    obj_list.len() as i32,
                 );
             } else {
                 gl::DrawArraysInstanced(
                     gl::TRIANGLES,
                     0,
                     self.vertices_count as i32,
-                    self.get_obj_list().len() as i32,
+                    obj_list.len() as i32,
                 );
             }
 
