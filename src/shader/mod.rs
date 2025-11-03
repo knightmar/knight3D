@@ -35,7 +35,7 @@ impl Shader {
     }
 
     /// This method needs to be called after the shader is created via the constructor.
-    /// It takes the content red by the constructor and stored in the content field, before compiling it to the opengl standard
+    /// It takes the content red by the constructor and stores it in the content field, before compiling it to the opengl standard
     /// It's also performing some basic error checking by calling panic! (bad, need to rewrite)
     pub fn init_shader(&self, shader_type: GLenum) -> GLuint {
         unsafe {

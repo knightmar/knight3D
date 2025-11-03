@@ -1,16 +1,20 @@
+extern crate core;
+use crate::renderer::Renderer;
+
+mod renderer;
 mod scene;
 mod shader;
 mod shape;
 mod texture;
 mod ui;
-mod renderer;
 
+use crate::renderer::color_renderer::ColorRenderer;
 use crate::scene::Scene;
 use crate::shape::Shape;
 use crate::ui::Ui;
 use gl;
 use glfw::Key::Escape;
-use glfw::{Context, Glfw, Window};
+use glfw::{Context, Window};
 use rand::random;
 use std::ops::Not;
 use std::process::exit;
@@ -20,7 +24,9 @@ use std::sync::{Arc, Mutex};
 pub static mut TIME: f64 = 0.0;
 
 fn main() {
-    unsafe { std::env::set_var("GDK_BACKEND", "x11"); }
+    unsafe {
+        std::env::set_var("GDK_BACKEND", "x11");
+    }
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
     glfw.window_hint(glfw::WindowHint::ContextVersion(4, 6));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(
@@ -41,31 +47,58 @@ fn main() {
         gl::Enable(gl::DEPTH_TEST);
     }
 
-    let vertices: [([f32; 3], [f32; 3], [f32; 2]); 24] = [
-        ([0.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 0.0]),
-        ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0]),
-        ([1.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 1.0]),
-        ([0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0]),
-        ([0.0, 0.0, 1.0], [0.0, 0.0, 1.0], [0.0, 0.0]),
-        ([1.0, 0.0, 1.0], [0.0, 0.0, 1.0], [1.0, 0.0]),
-        ([1.0, 1.0, 1.0], [0.0, 0.0, 1.0], [1.0, 1.0]),
-        ([0.0, 1.0, 1.0], [0.0, 0.0, 1.0], [0.0, 1.0]),
-        ([0.0, 0.0, 1.0], [-1.0, 0.0, 0.0], [0.0, 0.0]),
-        ([0.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [1.0, 0.0]),
-        ([0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [1.0, 1.0]),
-        ([0.0, 1.0, 1.0], [-1.0, 0.0, 0.0], [0.0, 1.0]),
-        ([1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0]),
-        ([1.0, 0.0, 1.0], [1.0, 0.0, 0.0], [1.0, 0.0]),
-        ([1.0, 1.0, 1.0], [1.0, 0.0, 0.0], [1.0, 1.0]),
-        ([1.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0]),
-        ([0.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0]),
-        ([1.0, 1.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0]),
-        ([1.0, 1.0, 1.0], [0.0, 1.0, 0.0], [1.0, 1.0]),
-        ([0.0, 1.0, 1.0], [0.0, 1.0, 0.0], [0.0, 1.0]),
-        ([0.0, 0.0, 1.0], [0.0, -1.0, 0.0], [0.0, 0.0]),
-        ([1.0, 0.0, 1.0], [0.0, -1.0, 0.0], [1.0, 0.0]),
-        ([1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [1.0, 1.0]),
-        ([0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 1.0]),
+    let pos: [[f32; 3]; 24] = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+        [1.0, 0.0, 1.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 1.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 1.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 1.0],
+        [1.0, 1.0, 1.0],
+        [1.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [1.0, 1.0, 1.0],
+        [0.0, 1.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [1.0, 0.0, 1.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0],
+    ];
+
+    let color = [
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, -1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [-1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, -1.0, 0.0],
     ];
 
     let indices: [u32; 36] = [
@@ -79,23 +112,32 @@ fn main() {
     ];
 
     let mut shape = Shape::new(
-        "Cube",
-        Box::from(vertices),
-        Some(&indices),
+        "Cube".to_string(),
+        Box::from(pos),
+        Box::from(color),
+        Box::new([]),
+        Some(Vec::from(&indices)),
         "./textures/dummy.png",
     );
-    shape.init_shaders("vertex_shader", "fragment_shader");
 
-    let mut shape2 = Shape::from_obj_file("cube", "./obj/CUBE.obj", "./textures/dummy.png").unwrap();
-    shape2.init_shaders("vertex_shader", "fragment_shader");
+    // let mut shape2 =
+    //     Shape::from_obj_file("cube".to_string(), "./obj/CUBE.obj", "./textures/dummy.png").unwrap();
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
+
+
 
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
     scene.lock().unwrap().add_shape(shape.clone());
-    scene.lock().unwrap().add_shape(shape2.clone());
+    // scene.lock().unwrap().add_shape(shape2.clone());
     // scene.lock().unwrap().add_shape(shape.clone());
+
+
+    let mut renderer =
+        ColorRenderer::init("vertex_shader", "fragment_shader", scene.clone());
+    renderer.init_buffers();
+
     scene
         .lock()
         .unwrap()
@@ -110,7 +152,7 @@ fn main() {
         .rotate([0.0, -40.0, 0.0], 15.0);
 
     while (&ui.ui_data.window.should_close()).not() {
-        scene.lock().unwrap().shapes.iter_mut().for_each(|mut x| {
+        scene.lock().unwrap().shapes.iter_mut().for_each(|x| {
             x.transform.rotate(
                 [
                     random::<f32>() * 10.0,
@@ -137,7 +179,7 @@ fn main() {
             gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
         }
 
-        scene.lock().unwrap().render();
+        renderer.render();
         ui.render();
     }
 }

@@ -4,7 +4,7 @@ use imgui::{Condition, StyleVar, Ui, Window, WindowFlags};
 use std::sync::{Arc, Mutex};
 use rand::random;
 
-pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene<'a>>>, fps: u32, fixed_h: f32) {
+pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed_h: f32) {
     let _pad = ui.push_style_var(StyleVar::WindowPadding([0.0, 0.0]));
 
     Window::new(&ui, "Objects")

@@ -2,12 +2,8 @@ use crate::shape::Shape;
 use std::fs::File;
 use std::io::Read;
 
-impl<'a> Shape<'a> {
-    pub fn from_obj_file<'b>(
-        name: &'a str,
-        file: &str,
-        texture_path: &str,
-    ) -> Result<Self, String> {
+impl Shape {
+    pub fn from_obj_file(name: String, file: &str, texture_path: &str) -> Result<Self, String> {
         let mut vertices = Vec::<[f32; 3]>::new();
 
         if let Ok(mut file) = File::open(file) {
@@ -35,10 +31,12 @@ impl<'a> Shape<'a> {
         let color = [0.0f32; 3];
         let texture = [0.0f32; 2];
 
-        let x = vertices
-            .iter()
-            .map(|&pos| (pos, color, texture))
-            .collect::<Vec<([f32; 3], [f32; 3], [f32; 2])>>();
-        return Ok(Shape::new(name, Box::from(x), None, texture_path));
+        // let x = vertices
+        //     .iter()
+        //     .map(|&pos| (pos, color, texture))
+        //     .collect::<Vec<([f32; 3], [f32; 3], [f32; 2])>>();
+        // return Ok(Shape::new(name, Box::from(x), None, texture_path));
+
+        Err("test".to_string())
     }
 }

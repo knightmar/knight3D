@@ -18,7 +18,7 @@ pub struct UIData<'a> {
     context: ImGuiContext,
     pub window: &'a mut PWindow,
     events: GlfwReceiver<(f64, WindowEvent)>,
-    scene: Arc<Mutex<Scene<'a>>>,
+    scene: Arc<Mutex<Scene>>,
     renderer: Renderer,
     last_imgui_time: f64,
     last_fps_time: f64,
@@ -63,7 +63,7 @@ impl<'a> Ui<'a> {
         glfw: Glfw,
         window: &'a mut PWindow,
         events: GlfwReceiver<(f64, WindowEvent)>,
-        scene: Arc<Mutex<Scene<'a>>>,
+        scene: Arc<Mutex<Scene>>,
     ) -> Self {
         window.set_key_polling(true);
         window.set_char_polling(true);
@@ -234,5 +234,5 @@ impl<'a> Ui<'a> {
 
 pub trait Inspectable {
     fn get_object_ui(&mut self, ui: &imgui::Ui);
-    fn get_object_name(&self) -> &str;
+    fn get_object_name(&self) -> String;
 }
