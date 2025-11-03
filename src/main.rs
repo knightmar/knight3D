@@ -19,6 +19,7 @@ use std::ops::Not;
 use std::process::exit;
 use std::ptr::null;
 use std::sync::{Arc, Mutex};
+use rand::random;
 
 pub static mut TIME: f64 = 0.0;
 
@@ -193,7 +194,7 @@ fn main() {
                 let y = xy * sector_angle.sin();
                 pos.push([x, y, z]);
                 // Couleur blanche pour toute la sphère
-                color.push([1.0, 1.0, 1.0]);
+                color.push([random(), random::<f32>() / 3.0, random::<f32>() / 3.0]);
             }
         }
 
@@ -222,7 +223,7 @@ fn main() {
     }
 
 
-    let (post, colort, indicest) = generate_sphere(32, 32);
+    let (post, colort, indicest) = generate_sphere(4, 4);
 
     let mut sphere_shape = Shape::new(
         "Sphere".to_string(),
@@ -230,7 +231,7 @@ fn main() {
         colort.into_boxed_slice(),
         Box::new([]), // Pas de coordonnées de texture pour l'instant
         Some(indicest),
-        "./textures/dummy.png",
+        "./textures/debug.png",
     );
 
     let mut shape = Shape::new(
@@ -258,7 +259,7 @@ fn main() {
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
     // scene.lock().unwrap().add_shape(shape);
-    scene.lock().unwrap().add_shape(shape1);
+    // scene.lock().unwrap().add_shape(shape1);
     scene.lock().unwrap().add_shape(sphere_shape);
 
 
