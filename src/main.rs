@@ -67,6 +67,35 @@ fn main() {
         ([0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 1.0]),
     ];
 
+let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
+    // --- SIDE 1 (front) ---
+    ([0.0, 0.0, 0.0], [0.0, -0.707, 0.707], [0.0, 0.0]), // base front-left
+    ([1.0, 0.0, 0.0], [0.0, -0.707, 0.707], [1.0, 0.0]), // base front-right
+    ([0.5, 0.5, 1.0], [0.0, -0.707, 0.707], [0.5, 1.0]), // apex
+
+    // --- SIDE 2 (right) ---
+    ([1.0, 0.0, 0.0], [0.707, 0.0, 0.707], [0.0, 0.0]),
+    ([1.0, 1.0, 0.0], [0.707, 0.0, 0.707], [1.0, 0.0]),
+    ([0.5, 0.5, 1.0], [0.707, 0.0, 0.707], [0.5, 1.0]),
+
+    // --- SIDE 3 (back) ---
+    ([1.0, 1.0, 0.0], [0.0, 0.707, 0.707], [0.0, 0.0]),
+    ([0.0, 1.0, 0.0], [0.0, 0.707, 0.707], [1.0, 0.0]),
+    ([0.5, 0.5, 1.0], [0.0, 0.707, 0.707], [0.5, 1.0]),
+
+    // --- SIDE 4 (left) ---
+    ([0.0, 1.0, 0.0], [-0.707, 0.0, 0.707], [0.0, 0.0]),
+    ([0.0, 0.0, 0.0], [-0.707, 0.0, 0.707], [1.0, 0.0]),
+    ([0.5, 0.5, 1.0], [-0.707, 0.0, 0.707], [0.5, 1.0]),
+
+    // --- BASE (square) ---
+    ([0.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 0.0]),
+    ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0]),
+    ([1.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 1.0]),
+    ([0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0]),
+];
+
+
     let indices: [u32; 36] = [
         // Avant
         0, 1, 2, 0, 2, 3, // Arrière
@@ -77,6 +106,28 @@ fn main() {
         20, 21, 22, 20, 22, 23,
     ];
 
+    let indices2: [u32; 18] = [
+    // Side 1
+    0, 1, 2,
+    // Side 2
+    3, 4, 5,
+    // Side 3
+    6, 7, 8,
+    // Side 4
+    9, 10, 11,
+
+    // Base (two triangles)
+    12, 13, 14,
+    12, 14, 15,
+];
+
+    let mut shape2 = Shape::new("Pyramid",
+        Box::from(vertices2),
+        Some(&indices2),
+        "./textures/debug.png",
+    );
+    shape2.init_shaders("vertex_shader", "fragment_shader");
+
     let mut shape = Shape::new(
         "Cube",
         Box::from(vertices),
@@ -84,9 +135,6 @@ fn main() {
         "./textures/dummy.png",
     );
     shape.init_shaders("vertex_shader", "fragment_shader");
-
-    let mut shape2 = Shape::from_obj_file("cube", "./obj/CUBE.obj", "./textures/dummy.png").unwrap();
-    shape2.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
@@ -109,17 +157,6 @@ fn main() {
         .rotate([0.0, -40.0, 0.0], 15.0);
 
     while (&ui.ui_data.window.should_close()).not() {
-        scene.lock().unwrap().shapes.iter_mut().for_each(|mut x| {
-            x.transform.rotate(
-                [
-                    random::<f32>() * 10.0,
-                    random::<f32>() * 10.0,
-                    random::<f32>() * 10.0,
-                ],
-                0.1,
-            );
-        });
-
         ui.ui_data.glfw.poll_events();
 
         ui.process_inputs();

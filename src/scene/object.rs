@@ -5,6 +5,7 @@ use nalgebra_glm::{Mat4, Quat};
 pub struct Transform {
     pub(crate) position: [f32; 3],
     pub(crate) rotation: Quat,
+    pub(crate) rotation_ui: [f32; 4],
     pub(crate) scale: [f32; 3],
 }
 
@@ -37,6 +38,7 @@ impl Transform {
             position,
             rotation,
             scale,
+            rotation_ui: rotation.as_vector().into(),
         }
     }
 
@@ -45,12 +47,19 @@ impl Transform {
             position: [0.0, 0.0, 0.0],
             rotation: Quat::identity(),
             scale: [1.0, 1.0, 1.0],
+            rotation_ui: Quat::identity().as_vector().into(),
         }
     }
 
     pub fn default_ui(&mut self, ui: &Ui) {
         // Use hidden ID to avoid collisions within same scope if needed
         ui.input_float3("Position##transform", &mut self.position).build();
+
+        ui.input_float4("Rotation##transform", &mut self.rotation_ui).build();
+        if ui.button("Apply rotation") {
+            self.set_rotation(Quat::from(self.rotation_ui));
+        }
+
     }
 
     pub fn set_position(&mut self, position: [f32; 3]) {
