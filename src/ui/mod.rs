@@ -207,22 +207,18 @@ impl<'a> Ui<'a> {
             io.add_input_character(c);
         }
 
-        // --- Camera movement with ZQSD (AZERTY) ---
         {
             use glfw::{Action, Key};
             use nalgebra as na;
 
-            // Time-scaled speed
             let io = self.ui_data.context.io();
-            let speed: f32 = 3.0 * io.delta_time; // units per second
+            let speed: f32 = 3.0 * io.delta_time;
 
-            // Which keys are down?
             let win = &self.ui_data.window;
             let forward_down = win.get_key(Key::W) == Action::Press;
             let back_down = win.get_key(Key::S) == Action::Press;
             let left_down = win.get_key(Key::A) == Action::Press;
             let right_down = win.get_key(Key::D) == Action::Press;
-            // Optional: vertical move
             let up_down = win.get_key(Key::Space) == Action::Press;
             let down_down = win.get_key(Key::LeftShift) == Action::Press;
 
@@ -230,7 +226,6 @@ impl<'a> Ui<'a> {
                 let mut scene = self.ui_data.scene.lock().unwrap();
                 let cam = &mut scene.camera;
 
-                // Build local axes from the camera rotation (OpenGL forward is -Z)
                 let rot = na::UnitQuaternion::from_quaternion(cam.transform.rotation);
                 let forward: na::Vector3<f32> = rot * na::Vector3::new(0.0, 0.0, -1.0);
                 let right: na::Vector3<f32> = rot * na::Vector3::new(1.0, 0.0, 0.0);
@@ -263,7 +258,7 @@ impl<'a> Ui<'a> {
                 }
             }
         }
-        // --- Camera look with mouse (hold Right Mouse Button to look around) ---
+        // Camera look
         {
             use glfw::Action;
             use nalgebra as na;
@@ -275,14 +270,11 @@ impl<'a> Ui<'a> {
                 .get_mouse_button(glfw::MouseButton::Button2)
                 == Action::Press;
 
-            // Track last mouse position across frames (local static for this function)
-            // Safe pattern: we reset when RMB is released, so no drift.
             static mut LAST_MOUSE: Option<(f32, f32)> = None;
 
-            // Sensitivity in degrees per pixel (tune to taste), time-scaled for consistency
             let io_ro = self.ui_data.context.io();
-            let sens_deg_per_px: f32 = 0.12; // base sensitivity
-            let sens = sens_deg_per_px; // using raw delta (already per frame)
+            let sens_deg_per_px: f32 = 0.12;
+            let sens = sens_deg_per_px;
 
             let (mx, my) = {
                 let io = self.ui_data.context.io();
@@ -305,11 +297,9 @@ impl<'a> Ui<'a> {
                     let mut scene = self.ui_data.scene.lock().unwrap();
                     let cam = &mut scene.camera;
 
-                    // Convert mouse delta to yaw/pitch in degrees
-                    let yaw_deg = -dx * sens; // move mouse right -> yaw right
-                    let pitch_deg = -dy * sens; // move mouse up -> pitch up
+                    let yaw_deg = -dx * sens;
+                    let pitch_deg = -dy * sens;
 
-                    // Build quaternions: yaw around world UP (Y), pitch around camera RIGHT
                     let rot_u = na::UnitQuaternion::from_quaternion(cam.transform.rotation);
                     let right: na::Unit<na::Vector3<f32>> =
                         na::Unit::new_normalize(rot_u * na::Vector3::x());
@@ -321,12 +311,10 @@ impl<'a> Ui<'a> {
                     let pitch_q =
                         na::UnitQuaternion::from_axis_angle(&right, pitch_deg.to_radians());
 
-                    // Apply incremental rotation: first yaw in world space, then pitch in camera space
                     let new_rot = (pitch_q * yaw_q) * rot_u;
                     cam.transform.rotation = new_rot.into_inner();
                 }
             } else {
-                // Reset when button is released so next press doesn’t jump
                 unsafe {
                     LAST_MOUSE = None;
                 }

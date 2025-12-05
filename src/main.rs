@@ -3,6 +3,7 @@ mod shader;
 mod shape;
 mod texture;
 mod ui;
+mod utils;
 
 use crate::scene::Scene;
 use crate::shape::Shape;
