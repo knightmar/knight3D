@@ -1,11 +1,12 @@
 use imgui::Ui;
-use nalgebra_glm::{Mat4, Quat, TMat4};
+use nalgebra_glm::{Mat4, Quat};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Transform {
     pub(crate) position: [f32; 3],
     pub(crate) rotation: Quat,
     pub(crate) rotation_ui: [f32; 3],
+    pub(crate) rotation_ui_editing: bool,
     pub(crate) scale: [f32; 3],
 }
 
@@ -33,12 +34,14 @@ impl Transform {
         translation * rotation * scale
     }
 
-    pub fn new(position: [f32; 3], rotation: nalgebra_glm::Quat, scale: [f32; 3]) -> Self {
+    pub fn new(position: [f32; 3], rotation: Quat, scale: [f32; 3]) -> Self {
         Self {
             position,
             rotation,
             scale,
-            rotation_ui: [0.0, 0.0, 0.0],        }
+            rotation_ui: [0.0, 0.0, 0.0],
+            rotation_ui_editing: false,
+        }
     }
 
     pub fn new_empty() -> Self {
@@ -46,15 +49,31 @@ impl Transform {
             position: [0.0, 0.0, 0.0],
             rotation: Quat::identity(),
             scale: [1.0, 1.0, 1.0],
-            rotation_ui: [0.0, 0.0, 0.0],        }
+            rotation_ui: [0.0, 0.0, 0.0],
+            rotation_ui_editing: false,
+        }
     }
 
     pub fn default_ui(&mut self, ui: &Ui) {
-        ui.input_float3("Position##transform", &mut self.position).build();
+        ui.input_float3("Position##transform", &mut self.position)
+            .build();
 
-        if ui.input_float3("Rotation##transform", &mut self.rotation_ui).build() {
+        if !self.rotation_ui_editing {
+            self.rotation_ui = Self::euler_deg_from_quat(self.rotation);
+        }
+
+        let changed = ui
+            .input_float3("Rotation##transform", &mut self.rotation_ui)
+            .build();
+
+        let active = ui.is_item_active();
+        self.rotation_ui_editing = active;
+
+        if changed {
             self.rotation = Self::quat_from_euler_deg(self.rotation_ui);
         }
+
+
     }
 
     pub fn set_position(&mut self, position: [f32; 3]) {
@@ -77,6 +96,11 @@ impl Transform {
         nalgebra::UnitQuaternion::from_euler_angles(roll, pitch, yaw).into_inner()
     }
 
+    pub fn euler_deg_from_quat(q: Quat) -> [f32; 3] {
+        let uq = nalgebra::UnitQuaternion::new_normalize(q);
+        let (roll, pitch, yaw) = uq.euler_angles(); // radians
+        [roll.to_degrees(), pitch.to_degrees(), yaw.to_degrees()]
+    }
 }
 pub trait Object {
     fn get_matrix(&self) -> Mat4;
