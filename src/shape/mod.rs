@@ -73,8 +73,19 @@ impl Shape {
             });
         });
 
+        Self::new_from_vertex(name, vertices, indices, texture_path)
+    }
+
+    pub fn new_from_vertex(
+        name: String,
+        data: Vec<Vertex>,
+        indices: Option<Vec<u32>>,
+        texture_path: &str,
+    ) -> Shape {
+        let texture = Texture::new(texture_path).unwrap();
+
         let mesh_data = MeshData {
-            vertices,
+            vertices: data,
             indices: indices.clone(),
         };
 

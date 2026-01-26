@@ -135,6 +135,7 @@ fn main() {
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
+    obj.transform.set_scale([10.0, 10.0, 10.0]);
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
