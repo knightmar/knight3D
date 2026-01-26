@@ -1,15 +1,18 @@
+mod mesh;
 pub mod obj_parsing;
 
 use crate::scene::object::{Object, Transform};
 use crate::shader::Shader;
+use crate::shape::mesh::{MeshData, MeshGPU, Vertex};
 use crate::texture::Texture;
 use crate::ui::Inspectable;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
 use imgui::Ui;
 use nalgebra_glm::Mat4;
-use std::ffi::{c_void, CString};
+use std::ffi::CString;
 use std::ptr::null;
+use std::rc::Rc;
 
 /// This struct represents a shape that will be rendered.
 /// # Fields :
@@ -18,31 +21,27 @@ use std::ptr::null;
 /// - indices : the list holding the vertices needed to be drawn with the help of the ebo
 /// - shader_program : the index of the shader program that will be linked when the shaders are compiled in the init_shaders method
 #[derive(Clone)]
-pub struct Shape<'a> {
-    name: &'a str,
-    vao: GLuint,
-    vbo: GLuint,
-    ebo: Option<GLuint>,
-    vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>,
-    indices: Option<Box<[u32]>>,
-    shader_program: GLuint,
-    texture: Texture,
+pub struct Shape {
+    pub name: String,
+    pub mesh: Rc<MeshGPU>,
+    pub texture: Texture,
+    pub shader_program: GLuint,
     pub transform: Transform,
 }
 
-impl<'a> Object for Shape<'a> {
+impl Object for Shape {
     fn get_matrix(&self) -> Mat4 {
         self.transform.get_matrix()
     }
 }
 
-impl<'a> Inspectable for Shape<'a> {
+impl Inspectable for Shape {
     fn get_object_ui(&mut self, ui: &Ui) {
         self.transform.default_ui(ui);
     }
 
-    fn get_object_name(&self) -> &'a str {
-        self.name
+    fn get_object_name(&self) -> String {
+        self.name.clone()
     }
 }
 
@@ -56,88 +55,41 @@ pub enum UniformValue {
     Matrix4fv(Mat4),
 }
 
-impl Shape<'_> {
-    pub fn new<'a>(
-        name: &'a str,
-        vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>, // pos : color : textpos
-        indices: Option<Box<[u32]>>,
+impl Shape {
+    pub fn new(
+        name: String,
+        data: Box<[([f32; 3], [f32; 3], [f32; 2])]>, // pos : color : tex_pos
+        indices: Option<Vec<u32>>,
         texture_path: &str,
-    ) -> Shape<'a> {
-        let mut vao: GLuint = 0;
-        let mut vbo: GLuint = 0;
-        let mut ebo: GLuint = 0;
-
-        unsafe {
-            gl::GenVertexArrays(1, &mut vao);
-            gl::GenBuffers(1, &mut vbo);
-            gl::GenBuffers(1, &mut ebo);
-
-            // VAO
-            gl::BindVertexArray(vao);
-
-            // VBO
-            gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
-            gl::BufferData(
-                gl::ARRAY_BUFFER,
-                (vertices.len() * size_of_val(&vertices[0])) as GLsizeiptr,
-                vertices.as_ptr() as *const _,
-                gl::STATIC_DRAW,
-            );
-
-            // EBO
-            if let Some(indices) = indices.clone() {
-                gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
-                gl::BufferData(
-                    gl::ELEMENT_ARRAY_BUFFER,
-                    (indices.len() * size_of::<u32>()) as GLsizeiptr,
-                    indices.as_ptr() as *const _,
-                    gl::STATIC_DRAW,
-                );
-            }
-
-            // position attrib
-            gl::VertexAttribPointer(
-                0,
-                3,
-                gl::FLOAT,
-                gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
-                null(),
-            );
-            gl::EnableVertexAttribArray(0);
-
-            // color attrib
-            gl::VertexAttribPointer(
-                1,
-                3,
-                gl::FLOAT,
-                gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
-                (3 * size_of::<f32>()) as *const c_void,
-            );
-            gl::EnableVertexAttribArray(1);
-
-            // texture attrib
-            gl::VertexAttribPointer(
-                2,
-                2,
-                gl::FLOAT,
-                gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
-                (6 * size_of::<f32>()) as *const c_void,
-            );
-            gl::EnableVertexAttribArray(2);
-        }
-
+    ) -> Shape {
         let texture = Texture::new(texture_path).unwrap();
+        let mut vertices = Vec::<Vertex>::new();
+        data.iter().for_each(|(position, color, tex_coords)| {
+            vertices.push(Vertex {
+                position: *position,
+                color: *color,
+                normal: [0.0, 0.0, 0.0],
+                tex_coords: *tex_coords,
+            });
+        });
+
+        let mesh_data = MeshData {
+            vertices,
+            indices: indices.clone(),
+        };
+
+        let mesh = MeshGPU {
+            vao: 0,
+            vbo: 0,
+            ebo: None,
+            index_count: indices.iter().count() as u32,
+        };
+
+        mesh.init(mesh_data);
 
         Shape {
             name,
-            vao,
-            vbo,
-            ebo: if ebo == 0 { None } else { Some(ebo) },
-            vertices,
-            indices,
+            mesh: Rc::from(mesh),
             shader_program: 0,
             texture,
             transform: Transform::new_empty(),
@@ -171,16 +123,16 @@ impl Shape<'_> {
         unsafe {
             gl::UseProgram(self.shader_program);
             gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
-            gl::BindVertexArray(self.vao);
-            if self.indices.is_some() {
+            gl::BindVertexArray(self.mesh.vao);
+            if self.mesh.index_count > 0 {
                 gl::DrawElements(
                     gl::TRIANGLES,
-                    self.indices.clone().unwrap().len() as GLsizei,
+                    self.mesh.index_count as GLsizei,
                     gl::UNSIGNED_INT,
                     null(),
                 );
             } else {
-                gl::DrawArrays(gl::TRIANGLES, 0, self.vertices.len() as GLsizei)
+                gl::DrawArrays(gl::TRIANGLES, 0, self.mesh.index_count as GLsizei)
             }
 
             gl::BindVertexArray(0);

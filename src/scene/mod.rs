@@ -6,20 +6,20 @@ use crate::TIME;
 pub mod camera;
 pub mod object;
 
-pub struct Scene<'a> {
-    pub shapes: Vec<Shape<'a>>,
+pub struct Scene {
+    pub shapes: Vec<Shape>,
     pub camera: Camera,
 }
 
-impl<'a> Scene<'a> {
-    pub fn new() -> Scene<'a> {
+impl<'a> Scene {
+    pub fn new() -> Scene {
         Scene {
             shapes: vec![],
             camera: Camera::new(),
         }
     }
 
-    pub fn add_shape(&mut self, shape: Shape<'a>) {
+    pub fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
     pub fn render(&self) {

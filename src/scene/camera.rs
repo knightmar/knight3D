@@ -31,8 +31,8 @@ impl Inspectable for Camera {
         self.transform.default_ui(ui);
     }
 
-    fn get_object_name(&self) -> &str {
-        "Camera"
+    fn get_object_name(&self) -> String {
+        "Camera".into()
     }
 }
 

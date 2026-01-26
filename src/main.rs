@@ -113,23 +113,27 @@ fn main() {
     ];
 
     let mut shape2 = Shape::new(
-        "Pyramid",
+        "Pyramid".into(),
         Box::from(vertices2),
-        Some(Box::from(indices2)),
+        Some(indices2.to_vec()),
         "./textures/debug.png",
     );
     shape2.init_shaders("vertex_shader", "fragment_shader");
 
     let mut shape = Shape::new(
-        "Cube",
+        "Cube".into(),
         Box::from(vertices),
-        Some(Box::from(indices)),
+        Some(indices.to_vec()),
         "./textures/dummy.png",
     );
     shape.init_shaders("vertex_shader", "fragment_shader");
 
-    let mut obj =
-        Shape::from_obj_file("obj", "/home/knightmar/code/knight3d/obj/CUBE.obj", "./textures/dummy.png").unwrap();
+    let mut obj = Shape::from_obj_file(
+        "obj".into(),
+        "/home/knightmar/code/knight3d/obj/CUBE.obj",
+        "./textures/dummy.png",
+    )
+    .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));

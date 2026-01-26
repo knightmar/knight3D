@@ -1,12 +1,8 @@
 use crate::shape::Shape;
 use std::io::Read;
 
-impl<'a> Shape<'a> {
-    pub fn from_obj_file(
-        name: &'a str,
-        obj_path: &str,
-        texture_path: &str,
-    ) -> Result<Self, String> {
+impl Shape {
+    pub fn from_obj_file(name: String, obj_path: &str, texture_path: &str) -> Result<Self, String> {
         const DEFAULT_COLOR: [f32; 3] = [0.0; 3];
         const DEFAULT_UV: [f32; 2] = [0.0; 2];
 
@@ -69,7 +65,7 @@ impl<'a> Shape<'a> {
         let indices_slice = if indices.is_empty() {
             None
         } else {
-            Some(Box::from(indices.as_slice()))
+            Some(indices)
         };
 
         Ok(Shape::new(
