@@ -1,7 +1,6 @@
 use crate::shape::mesh::Vertex;
 use crate::shape::Shape;
 use std::collections::HashMap;
-use std::io::Read;
 
 impl Shape {
     pub fn from_obj_file(name: String, obj_path: &str, texture_path: &str) -> Result<Self, String> {

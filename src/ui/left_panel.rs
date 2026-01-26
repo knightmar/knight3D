@@ -1,8 +1,8 @@
 use crate::scene::Scene;
 use crate::ui::Inspectable;
 use imgui::{Condition, StyleVar, Ui, Window, WindowFlags};
-use std::sync::{Arc, Mutex};
 use rand::random;
+use std::sync::{Arc, Mutex};
 
 pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed_h: f32) {
     let _pad = ui.push_style_var(StyleVar::WindowPadding([0.0, 0.0]));
@@ -16,22 +16,37 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
             let window_ui = &ui;
             let scene = &mut scene.lock().unwrap();
 
-
             ui.text("Infos:");
-            ui.text(fps.to_string());
+            ui.text(format_args!("fps: {}", fps.to_string()).to_string());
+
+            let mut nb_vertices = 0;
+            scene.shapes.iter().for_each(|x1| {
+                nb_vertices += x1.mesh().mesh_data.vertices.len();
+            });
+
+            ui.text(format_args!("nb vertices: {}", nb_vertices.to_string()).to_string());
 
             if ui.button("Random Pos") {
                 scene.shapes.iter_mut().for_each(|mut x| {
-                    x.transform
-                        .set_position([random::<f32>() * 5.0, random::<f32>() * 5.0, random::<f32>() * 5.0]);
+                    x.transform.set_position([
+                        random::<f32>() * 5.0,
+                        random::<f32>() * 5.0,
+                        random::<f32>() * 5.0,
+                    ]);
                 });
             }
 
             if ui.button("New cube") {
-                let shape1 = scene.shapes.get(0).unwrap().clone();
-                scene.add_shape(shape1);
+                if let Some(shape) = scene.shapes.get(2).cloned() {
+                    scene.add_shape(shape);
+                }
             }
 
+            if ui.button("Delete All") {
+                while scene.shapes.len() > 0 {
+                    scene.remove_shape(0);
+                }
+            }
 
             ui.separator();
             ui.text("Object list:");

@@ -3,7 +3,7 @@ pub mod obj_parsing;
 
 use crate::scene::object::{Object, Transform};
 use crate::shader::Shader;
-use crate::shape::mesh::{MeshData, MeshGPU, Vertex};
+use crate::shape::mesh::{Mesh, MeshData, MeshGPU, Vertex};
 use crate::texture::Texture;
 use crate::ui::Inspectable;
 use gl::types::*;
@@ -23,7 +23,7 @@ use std::rc::Rc;
 #[derive(Clone)]
 pub struct Shape {
     pub name: String,
-    pub mesh: Rc<MeshGPU>,
+    mesh: Rc<Mesh>,
     pub texture: Texture,
     pub shader_program: GLuint,
     pub transform: Transform,
@@ -88,14 +88,13 @@ impl Shape {
             indices: indices.clone(),
         };
 
-        let mut mesh = MeshGPU {
-            vao: 0,
-            vbo: 0,
-            ebo: None,
-            index_count: indices.iter().count() as u32,
-        };
+        let mut mesh_gpu = MeshGPU::default();
+        mesh_gpu.init(mesh_data.clone());
 
-        mesh.init(mesh_data);
+        let mesh = Mesh {
+            mesh_data,
+            mesh_gpu,
+        };
 
         Shape {
             name,
@@ -133,16 +132,16 @@ impl Shape {
         unsafe {
             gl::UseProgram(self.shader_program);
             gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
-            gl::BindVertexArray(self.mesh.vao);
-            if self.mesh.index_count > 0 {
+            gl::BindVertexArray(self.mesh.mesh_gpu.vao);
+            if self.mesh.mesh_gpu.index_count > 0 {
                 gl::DrawElements(
                     gl::TRIANGLES,
-                    self.mesh.index_count as GLsizei,
+                    self.mesh.mesh_gpu.index_count as GLsizei,
                     gl::UNSIGNED_INT,
                     null(),
                 );
             } else {
-                gl::DrawArrays(gl::TRIANGLES, 0, self.mesh.index_count as GLsizei)
+                gl::DrawArrays(gl::TRIANGLES, 0, self.mesh.mesh_gpu.index_count as GLsizei)
             }
 
             gl::BindVertexArray(0);
@@ -167,5 +166,19 @@ impl Shape {
                 }
             }
         }
+    }
+
+    pub fn mesh(&self) -> &Mesh {
+        &self.mesh
+    }
+
+    pub fn set_mesh(&mut self, mesh_data: MeshData) {
+        let mut mesh_gpu = MeshGPU::default();
+        mesh_gpu.init(mesh_data.clone());
+        let mesh = Mesh {
+            mesh_data,
+            mesh_gpu,
+        };
+        self.mesh = Rc::new(mesh);
     }
 }

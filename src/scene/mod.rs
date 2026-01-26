@@ -22,6 +22,10 @@ impl<'a> Scene {
     pub fn add_shape(&mut self, shape: Shape) {
         self.shapes.push(shape);
     }
+    pub fn remove_shape(&mut self, i: u32) {
+        self.shapes.remove(i as usize);
+    }
+
     pub fn render(&self) {
         for shape in &self.shapes {
             shape.set_uniform(

@@ -4,8 +4,6 @@ in vec3 pos;
 in vec3 vColor;
 in vec2 texCoord;
 
-uniform vec4 uTint;
-uniform bool uUseTexture;
 uniform float time;
 uniform sampler2D tex;
 void main() {

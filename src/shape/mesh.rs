@@ -1,14 +1,17 @@
+use crate::shape::Shape;
 use gl::types::{GLsizei, GLsizeiptr, GLuint};
 use std::ffi::c_void;
 use std::ptr::null;
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 3],
     pub tex_coords: [f32; 2],
     // pub normal: [f32; 3],
 }
+#[derive(Clone)]
 pub struct MeshData {
     pub vertices: Vec<Vertex>,
     pub indices: Option<Vec<u32>>,
@@ -19,6 +22,56 @@ pub struct MeshGPU {
     pub vbo: GLuint,
     pub ebo: Option<GLuint>,
     pub index_count: u32,
+}
+
+pub struct Mesh {
+    pub mesh_data: MeshData,
+    pub mesh_gpu: MeshGPU,
+}
+
+impl Drop for MeshGPU {
+    fn drop(&mut self) {
+        unsafe {
+            if self.vao != 0 {
+                gl::DeleteVertexArrays(1, &self.vao);
+                self.vao = 0;
+            }
+
+            if self.vbo != 0 {
+                gl::DeleteBuffers(1, &self.vbo);
+                self.vbo = 0;
+            }
+
+            if let Some(ebo) = self.ebo.take() {
+                if ebo != 0 {
+                    gl::DeleteBuffers(1, &ebo);
+                }
+            }
+        }
+    }
+}
+
+impl Default for MeshGPU {
+    fn default() -> Self {
+        Self {
+            vao: 0,
+            vbo: 0,
+            ebo: None,
+            index_count: 0,
+        }
+    }
+}
+
+impl Shape {
+    pub fn change_color(&mut self, color: [f32; 3]) {
+        let mut mesh_data = self.mesh.mesh_data.clone();
+
+        mesh_data.vertices.iter_mut().for_each(|x| {
+            x.color = color;
+        });
+
+        self.set_mesh(mesh_data);
+    }
 }
 
 impl MeshGPU {
