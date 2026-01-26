@@ -296,22 +296,20 @@ impl<'a> Ui<'a> {
                 if dx != 0.0 || dy != 0.0 {
                     let mut scene = self.ui_data.scene.lock().unwrap();
                     let cam = &mut scene.camera;
-
                     let yaw_deg = -dx * sens;
                     let pitch_deg = -dy * sens;
-
                     let rot_u = na::UnitQuaternion::from_quaternion(cam.transform.rotation);
-                    let right: na::Unit<na::Vector3<f32>> =
-                        na::Unit::new_normalize(rot_u * na::Vector3::x());
 
                     let yaw_q = na::UnitQuaternion::from_axis_angle(
                         &na::Vector3::y_axis(),
                         yaw_deg.to_radians(),
                     );
-                    let pitch_q =
-                        na::UnitQuaternion::from_axis_angle(&right, pitch_deg.to_radians());
+                    let pitch_q = na::UnitQuaternion::from_axis_angle(
+                        &na::Vector3::x_axis(),
+                        pitch_deg.to_radians(),
+                    );
 
-                    let new_rot = (pitch_q * yaw_q) * rot_u;
+                    let new_rot = yaw_q * rot_u * pitch_q;
                     cam.transform.rotation = new_rot.into_inner();
                 }
             } else {
