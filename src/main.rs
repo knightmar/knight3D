@@ -10,8 +10,7 @@ use crate::shape::Shape;
 use crate::ui::Ui;
 use gl;
 use glfw::Key::Escape;
-use glfw::{Context, Glfw, Window};
-use rand::random;
+use glfw::{Context, Window};
 use std::ops::Not;
 use std::process::exit;
 use std::ptr::null;
@@ -20,7 +19,9 @@ use std::sync::{Arc, Mutex};
 pub static mut TIME: f64 = 0.0;
 
 fn main() {
-    unsafe { std::env::set_var("GDK_BACKEND", "x11"); }
+    unsafe {
+        std::env::set_var("GDK_BACKEND", "x11");
+    }
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
     glfw.window_hint(glfw::WindowHint::ContextVersion(4, 6));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(
@@ -68,34 +69,29 @@ fn main() {
         ([0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 1.0]),
     ];
 
-let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
-    // --- SIDE 1 (front) ---
-    ([0.0, 0.0, 0.0], [0.0, -0.707, 0.707], [0.0, 0.0]), // base front-left
-    ([1.0, 0.0, 0.0], [0.0, -0.707, 0.707], [1.0, 0.0]), // base front-right
-    ([0.5, 0.5, 1.0], [0.0, -0.707, 0.707], [0.5, 1.0]), // apex
-
-    // --- SIDE 2 (right) ---
-    ([1.0, 0.0, 0.0], [0.707, 0.0, 0.707], [0.0, 0.0]),
-    ([1.0, 1.0, 0.0], [0.707, 0.0, 0.707], [1.0, 0.0]),
-    ([0.5, 0.5, 1.0], [0.707, 0.0, 0.707], [0.5, 1.0]),
-
-    // --- SIDE 3 (back) ---
-    ([1.0, 1.0, 0.0], [0.0, 0.707, 0.707], [0.0, 0.0]),
-    ([0.0, 1.0, 0.0], [0.0, 0.707, 0.707], [1.0, 0.0]),
-    ([0.5, 0.5, 1.0], [0.0, 0.707, 0.707], [0.5, 1.0]),
-
-    // --- SIDE 4 (left) ---
-    ([0.0, 1.0, 0.0], [-0.707, 0.0, 0.707], [0.0, 0.0]),
-    ([0.0, 0.0, 0.0], [-0.707, 0.0, 0.707], [1.0, 0.0]),
-    ([0.5, 0.5, 1.0], [-0.707, 0.0, 0.707], [0.5, 1.0]),
-
-    // --- BASE (square) ---
-    ([0.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 0.0]),
-    ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0]),
-    ([1.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 1.0]),
-    ([0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0]),
-];
-
+    let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
+        // --- SIDE 1 (front) ---
+        ([0.0, 0.0, 0.0], [0.0, -0.707, 0.707], [0.0, 0.0]), // base front-left
+        ([1.0, 0.0, 0.0], [0.0, -0.707, 0.707], [1.0, 0.0]), // base front-right
+        ([0.5, 0.5, 1.0], [0.0, -0.707, 0.707], [0.5, 1.0]), // apex
+        // --- SIDE 2 (right) ---
+        ([1.0, 0.0, 0.0], [0.707, 0.0, 0.707], [0.0, 0.0]),
+        ([1.0, 1.0, 0.0], [0.707, 0.0, 0.707], [1.0, 0.0]),
+        ([0.5, 0.5, 1.0], [0.707, 0.0, 0.707], [0.5, 1.0]),
+        // --- SIDE 3 (back) ---
+        ([1.0, 1.0, 0.0], [0.0, 0.707, 0.707], [0.0, 0.0]),
+        ([0.0, 1.0, 0.0], [0.0, 0.707, 0.707], [1.0, 0.0]),
+        ([0.5, 0.5, 1.0], [0.0, 0.707, 0.707], [0.5, 1.0]),
+        // --- SIDE 4 (left) ---
+        ([0.0, 1.0, 0.0], [-0.707, 0.0, 0.707], [0.0, 0.0]),
+        ([0.0, 0.0, 0.0], [-0.707, 0.0, 0.707], [1.0, 0.0]),
+        ([0.5, 0.5, 1.0], [-0.707, 0.0, 0.707], [0.5, 1.0]),
+        // --- BASE (square) ---
+        ([0.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 0.0]),
+        ([1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0]),
+        ([1.0, 1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 1.0]),
+        ([0.0, 1.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0]),
+    ];
 
     let indices: [u32; 36] = [
         // Avant
@@ -108,23 +104,18 @@ let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
     ];
 
     let indices2: [u32; 18] = [
-    // Side 1
-    0, 1, 2,
-    // Side 2
-    3, 4, 5,
-    // Side 3
-    6, 7, 8,
-    // Side 4
-    9, 10, 11,
+        // Side 1
+        0, 1, 2, // Side 2
+        3, 4, 5, // Side 3
+        6, 7, 8, // Side 4
+        9, 10, 11, // Base (two triangles)
+        12, 13, 14, 12, 14, 15,
+    ];
 
-    // Base (two triangles)
-    12, 13, 14,
-    12, 14, 15,
-];
-
-    let mut shape2 = Shape::new("Pyramid",
+    let mut shape2 = Shape::new(
+        "Pyramid",
         Box::from(vertices2),
-        Some(&indices2),
+        Some(Box::from(indices2)),
         "./textures/debug.png",
     );
     shape2.init_shaders("vertex_shader", "fragment_shader");
@@ -132,10 +123,14 @@ let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
     let mut shape = Shape::new(
         "Cube",
         Box::from(vertices),
-        Some(&indices),
+        Some(Box::from(indices)),
         "./textures/dummy.png",
     );
     shape.init_shaders("vertex_shader", "fragment_shader");
+
+    let mut obj =
+        Shape::from_obj_file("obj", "/home/knightmar/code/knight3d/obj/CUBE.obj", "./textures/dummy.png").unwrap();
+    obj.init_shaders("vertex_shader", "fragment_shader");
 
     let mut scene = Arc::new(Mutex::new(Scene::new()));
 
@@ -143,7 +138,7 @@ let vertices2: [([f32; 3], [f32; 3], [f32; 2]); 16] = [
 
     scene.lock().unwrap().add_shape(shape.clone());
     scene.lock().unwrap().add_shape(shape2.clone());
-    // scene.lock().unwrap().add_shape(shape.clone());
+    scene.lock().unwrap().add_shape(obj.clone());
     scene
         .lock()
         .unwrap()

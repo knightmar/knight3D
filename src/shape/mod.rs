@@ -24,7 +24,7 @@ pub struct Shape<'a> {
     vbo: GLuint,
     ebo: Option<GLuint>,
     vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>,
-    indices: Option<&'a [u32]>,
+    indices: Option<Box<[u32]>>,
     shader_program: GLuint,
     texture: Texture,
     pub transform: Transform,
@@ -60,7 +60,7 @@ impl Shape<'_> {
     pub fn new<'a>(
         name: &'a str,
         vertices: Box<[([f32; 3], [f32; 3], [f32; 2])]>, // pos : color : textpos
-        indices: Option<&'a [u32]>,
+        indices: Option<Box<[u32]>>,
         texture_path: &str,
     ) -> Shape<'a> {
         let mut vao: GLuint = 0;
@@ -85,7 +85,7 @@ impl Shape<'_> {
             );
 
             // EBO
-            if let Some(indices) = indices {
+            if let Some(indices) = indices.clone() {
                 gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
                 gl::BufferData(
                     gl::ELEMENT_ARRAY_BUFFER,
@@ -175,7 +175,7 @@ impl Shape<'_> {
             if self.indices.is_some() {
                 gl::DrawElements(
                     gl::TRIANGLES,
-                    self.indices.unwrap().len() as GLsizei,
+                    self.indices.clone().unwrap().len() as GLsizei,
                     gl::UNSIGNED_INT,
                     null(),
                 );

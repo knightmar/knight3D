@@ -1,44 +1,82 @@
 use crate::shape::Shape;
-use std::fs::File;
 use std::io::Read;
 
 impl<'a> Shape<'a> {
-    pub fn from_obj_file<'b>(
+    pub fn from_obj_file(
         name: &'a str,
-        file: &str,
+        obj_path: &str,
         texture_path: &str,
     ) -> Result<Self, String> {
-        let mut vertices = Vec::<[f32; 3]>::new();
+        const DEFAULT_COLOR: [f32; 3] = [0.0; 3];
+        const DEFAULT_UV: [f32; 2] = [0.0; 2];
 
-        if let Ok(mut file) = File::open(file) {
-            let mut content = String::new();
-            if file.read_to_string(&mut content).is_err() {
-                return Err("Error while reading file".to_string());
-            }
-
-            content.lines().for_each(|line| {
-                let line_splited: Vec<&str> = line.split_whitespace().collect();
-                if let Some(&"v") = line_splited.get(0) {
-                    if line_splited.len() >= 4 {
-                        if let (Ok(x), Ok(y), Ok(z)) = (
-                            line_splited[1].parse::<f32>(),
-                            line_splited[2].parse::<f32>(),
-                            line_splited[3].parse::<f32>(),
-                        ) {
-                            vertices.push([x, y, z]);
-                        }
-                    }
-                }
-            });
+        fn parse_vertex<'s>(mut parts: impl Iterator<Item = &'s str>) -> Option<[f32; 3]> {
+            let x = parts.next()?.parse::<f32>().ok()?;
+            let y = parts.next()?.parse::<f32>().ok()?;
+            let z = parts.next()?.parse::<f32>().ok()?;
+            Some([x, y, z])
         }
 
-        let color = [0.0f32; 3];
-        let texture = [0.0f32; 2];
+        fn parse_face_index(token: &str) -> Option<u32> {
+            let first = token.split('/').next()?;
+            let one_based = first.parse::<u32>().ok()?;
+            one_based.checked_sub(1)
+        }
 
-        let x = vertices
+        let content = std::fs::read_to_string(obj_path)
+            .map_err(|e| format!("Erreur lors de la lecture de '{obj_path}': {e}"))?;
+
+        let mut positions: Vec<[f32; 3]> = Vec::new();
+        let mut indices: Vec<u32> = Vec::new();
+
+        for line in content.lines() {
+            let mut tokens = line.split_whitespace();
+            let Some(kind) = tokens.next() else { continue };
+
+            match kind {
+                "v" => {
+                    if let Some(pos) = parse_vertex(tokens) {
+                        positions.push(pos);
+                    }
+                }
+                "f" => {
+                    let mut face = [0u32; 3];
+                    let mut ok = true;
+
+                    for (i, t) in tokens.take(3).enumerate() {
+                        if let Some(idx) = parse_face_index(t) {
+                            face[i] = idx;
+                        } else {
+                            ok = false;
+                            break;
+                        }
+                    }
+
+                    if ok {
+                        indices.extend_from_slice(&face);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        let vertices_with_attrs = positions
             .iter()
-            .map(|&pos| (pos, color, texture))
+            .copied()
+            .map(|pos| (pos, DEFAULT_COLOR, DEFAULT_UV))
             .collect::<Vec<([f32; 3], [f32; 3], [f32; 2])>>();
-        return Ok(Shape::new(name, Box::from(x), None, texture_path));
+
+        let indices_slice = if indices.is_empty() {
+            None
+        } else {
+            Some(Box::from(indices.as_slice()))
+        };
+
+        Ok(Shape::new(
+            name,
+            Box::from(vertices_with_attrs),
+            indices_slice,
+            texture_path,
+        ))
     }
 }
