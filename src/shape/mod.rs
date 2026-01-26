@@ -68,7 +68,7 @@ impl Shape {
             vertices.push(Vertex {
                 position: *position,
                 color: *color,
-                normal: [0.0, 0.0, 0.0],
+                // normal: [0.0, 0.0, 0.0],
                 tex_coords: *tex_coords,
             });
         });
@@ -78,7 +78,7 @@ impl Shape {
             indices: indices.clone(),
         };
 
-        let mesh = MeshGPU {
+        let mut mesh = MeshGPU {
             vao: 0,
             vbo: 0,
             ebo: None,

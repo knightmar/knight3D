@@ -5,9 +5,9 @@ use std::ptr::null;
 #[repr(C)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub normal: [f32; 3],
+    pub color: [f32; 3],
     pub tex_coords: [f32; 2],
-    pub color: [f32; 3]
+    // pub normal: [f32; 3],
 }
 pub struct MeshData {
     pub vertices: Vec<Vertex>,
@@ -22,7 +22,7 @@ pub struct MeshGPU {
 }
 
 impl MeshGPU {
-    pub fn init(&self, mesh_data: MeshData) {
+    pub fn init(&mut self, mesh_data: MeshData) {
         let mut vao: GLuint = 0;
         let mut vbo: GLuint = 0;
         let mut ebo: GLuint = 0;
@@ -53,6 +53,12 @@ impl MeshGPU {
                     indices.as_ptr() as *const _,
                     gl::STATIC_DRAW,
                 );
+
+                self.ebo = Some(ebo);
+                self.index_count = indices.len() as u32;
+            } else {
+                self.ebo = None;
+                self.index_count = mesh_data.vertices.len() as u32;
             }
 
             // position attrib
@@ -88,5 +94,8 @@ impl MeshGPU {
             );
             gl::EnableVertexAttribArray(2);
         }
+
+        self.vao = vao;
+        self.vbo = vbo;
     }
 }
