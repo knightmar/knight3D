@@ -62,7 +62,6 @@ impl Shape {
         indices: Option<Vec<u32>>,
         texture_path: &str,
     ) -> Shape {
-        let texture = Texture::new(texture_path).unwrap();
         let mut vertices = Vec::<Vertex>::new();
         data.iter().for_each(|(position, color, tex_coords)| {
             vertices.push(Vertex {

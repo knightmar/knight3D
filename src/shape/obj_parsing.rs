@@ -54,7 +54,7 @@ impl Shape {
 
                             final_vertices.push(Vertex {
                                 position: pos,
-                                color: [1.0, 1.0, 1.0],
+                                color: [-1.0, -1.0, -1.0],
                                 tex_coords: uv,
                                 // normal: norm,
                             });
