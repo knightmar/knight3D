@@ -1,3 +1,8 @@
+pub mod shape;
+mod light;
+
+use std::ffi::CString;
+use crate::objects::shape::UniformValue;
 use crate::utils::{euler_deg_from_quat, quat_from_euler_deg};
 use imgui::Ui;
 use nalgebra_glm::{Mat4, Quat};
@@ -87,6 +92,33 @@ impl Transform {
         self.scale = scale;
     }
 }
-pub trait Object {
-    fn get_matrix(&self) -> Mat4;
+pub trait Renderable {
+    fn get_program_id(&self) -> u32;
+
+    /// This method is called each frame, it binds the vertex and draws the shape
+    fn render(&self);
+    /// This method takes the name of the shaders and compiles them into a program shader before storing it in the struct's field
+    /// # Arguments : names of the shaders
+    /// # Effect : Updates the shader_program field of the struct
+    fn init_shaders(&mut self, vertex_shader_name: &str, fragment_shader_name: &str);
+    /// This method is used to set a uniform based on the name and a value
+    /// (Uniforms are a type of variable in opengl's shaders)
+    fn set_uniform(&self, name: String, value: UniformValue) {
+        unsafe {
+            let shader_program = self.get_program_id();
+            let i =
+                gl::GetUniformLocation(shader_program, CString::new(name).unwrap().as_ptr());
+            gl::UseProgram(shader_program);
+            match value {
+                UniformValue::Float(v) => gl::Uniform1f(i, v),
+                UniformValue::Int(v) => gl::Uniform1i(i, v),
+                UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
+                UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
+                UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
+                UniformValue::Matrix4fv(v) => {
+                    gl::UniformMatrix4fv(i, 1, gl::FALSE, v.data.as_slice().as_ptr())
+                }
+            }
+        }
+    }
 }

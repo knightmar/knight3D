@@ -1,5 +1,5 @@
-use crate::shape::mesh::Vertex;
-use crate::shape::Shape;
+use crate::objects::shape::mesh::Vertex;
+use crate::objects::shape::Shape;
 use std::collections::HashMap;
 
 impl Shape {

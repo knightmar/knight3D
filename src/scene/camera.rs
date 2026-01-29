@@ -1,7 +1,7 @@
-use crate::scene::object::{Object, Transform};
 use crate::ui::Inspectable;
 use imgui::Ui;
 use nalgebra_glm::Mat4;
+use crate::objects::Transform;
 
 #[derive(Clone, Copy)]
 pub struct Camera {

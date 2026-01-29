@@ -1,4 +1,4 @@
-use crate::shape::Shape;
+use crate::objects::shape::Shape;
 use gl::types::{GLsizei, GLsizeiptr, GLuint};
 use std::ffi::c_void;
 use std::ptr::null;

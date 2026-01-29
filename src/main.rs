@@ -1,12 +1,12 @@
 mod scene;
 mod shader;
-mod shape;
 mod texture;
 mod ui;
 mod utils;
+mod objects;
 
 use crate::scene::Scene;
-use crate::shape::Shape;
+use objects::shape::Shape;
 use crate::ui::Ui;
 use gl;
 use glfw::Key::Escape;
@@ -15,6 +15,7 @@ use std::ops::Not;
 use std::process::exit;
 use std::ptr::null;
 use std::sync::{Arc, Mutex};
+use crate::objects::Renderable;
 
 pub static mut TIME: f64 = 0.0;
 
@@ -130,13 +131,13 @@ fn main() {
 
     let mut obj = Shape::from_obj_file(
         "obj".into(),
-        "/home/knightmar/code/knight3d/obj/cat.obj",
-        "./textures/cat.jpg",
+        "./obj/car.obj",
+        "./textures/car.jpg",
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
-    obj.transform.set_scale([0.1, 0.1, 0.1]);
-    obj.transform.rotate([1.0, 0.0, 0.0], -90.0);
+    obj.transform.set_scale([0.01, 0.01, 0.01]);
+    obj.transform.rotate([1.0, 0.0, 0.0], -0.0);
 
     let scene = Arc::new(Mutex::new(Scene::new()));
 

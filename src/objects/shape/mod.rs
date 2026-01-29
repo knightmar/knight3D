@@ -1,16 +1,15 @@
 mod mesh;
 pub mod obj_parsing;
 
-use crate::scene::object::{Object, Transform};
+use crate::objects::shape::mesh::{Mesh, MeshData, MeshGPU, Vertex};
+use crate::objects::{Renderable, Transform};
 use crate::shader::Shader;
-use crate::shape::mesh::{Mesh, MeshData, MeshGPU, Vertex};
 use crate::texture::Texture;
 use crate::ui::Inspectable;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
 use imgui::Ui;
 use nalgebra_glm::Mat4;
-use std::ffi::CString;
 use std::ptr::null;
 use std::rc::Rc;
 
@@ -29,9 +28,48 @@ pub struct Shape {
     pub transform: Transform,
 }
 
-impl Object for Shape {
-    fn get_matrix(&self) -> Mat4 {
-        self.transform.get_matrix()
+impl Renderable for Shape {
+    fn get_program_id(&self) -> u32 {
+        self.shader_program
+    }
+
+    fn render(&self) {
+        unsafe {
+            gl::UseProgram(self.shader_program);
+            gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
+            gl::BindVertexArray(self.mesh.mesh_gpu.vao);
+            if self.mesh.mesh_gpu.index_count > 0 {
+                gl::DrawElements(
+                    gl::TRIANGLES,
+                    self.mesh.mesh_gpu.index_count as GLsizei,
+                    gl::UNSIGNED_INT,
+                    null(),
+                );
+            } else {
+                gl::DrawArrays(gl::TRIANGLES, 0, self.mesh.mesh_gpu.index_count as GLsizei)
+            }
+
+            gl::BindVertexArray(0);
+        }
+    }
+
+    fn init_shaders(&mut self, vertex_shader_name: &str, fragment_shader_name: &str) {
+        let vertex_shader = Shader::new(vertex_shader_name)
+            .unwrap()
+            .init_shader(VERTEX_SHADER);
+        let fragment_shader = Shader::new(fragment_shader_name)
+            .unwrap()
+            .init_shader(FRAGMENT_SHADER);
+
+        self.shader_program = unsafe {
+            let program = gl::CreateProgram();
+            gl::AttachShader(program, vertex_shader);
+            gl::AttachShader(program, fragment_shader);
+            gl::LinkProgram(program);
+            gl::DeleteShader(vertex_shader);
+            gl::DeleteShader(fragment_shader);
+            program
+        };
     }
 }
 
@@ -102,69 +140,6 @@ impl Shape {
             shader_program: 0,
             texture,
             transform: Transform::new_empty(),
-        }
-    }
-
-    /// This method takes the name of the shaders and compiles them into a program shader before storing it in the struct's field
-    /// # Arguments : names of the shaders
-    /// # Effect : Updates the shader_program field of the struct
-    pub fn init_shaders(&mut self, vertex_shader_name: &str, fragment_shader_name: &str) {
-        let vertex_shader = Shader::new(vertex_shader_name)
-            .unwrap()
-            .init_shader(VERTEX_SHADER);
-        let fragment_shader = Shader::new(fragment_shader_name)
-            .unwrap()
-            .init_shader(FRAGMENT_SHADER);
-
-        self.shader_program = unsafe {
-            let program = gl::CreateProgram();
-            gl::AttachShader(program, vertex_shader);
-            gl::AttachShader(program, fragment_shader);
-            gl::LinkProgram(program);
-            gl::DeleteShader(vertex_shader);
-            gl::DeleteShader(fragment_shader);
-            program
-        };
-    }
-
-    /// This method is called each frame, it binds the vertex and draws the shape
-    pub fn render(&self) {
-        unsafe {
-            gl::UseProgram(self.shader_program);
-            gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
-            gl::BindVertexArray(self.mesh.mesh_gpu.vao);
-            if self.mesh.mesh_gpu.index_count > 0 {
-                gl::DrawElements(
-                    gl::TRIANGLES,
-                    self.mesh.mesh_gpu.index_count as GLsizei,
-                    gl::UNSIGNED_INT,
-                    null(),
-                );
-            } else {
-                gl::DrawArrays(gl::TRIANGLES, 0, self.mesh.mesh_gpu.index_count as GLsizei)
-            }
-
-            gl::BindVertexArray(0);
-        }
-    }
-
-    /// This method is used to set a uniform based on the name and a value
-    /// (Uniforms are a type of variable in opengl's shaders)
-    pub fn set_uniform(&self, name: &'static str, value: UniformValue) {
-        unsafe {
-            let i =
-                gl::GetUniformLocation(self.shader_program, CString::new(name).unwrap().as_ptr());
-            gl::UseProgram(self.shader_program);
-            match value {
-                UniformValue::Float(v) => gl::Uniform1f(i, v),
-                UniformValue::Int(v) => gl::Uniform1i(i, v),
-                UniformValue::Vec2(v) => gl::Uniform2f(i, v[0], v[1]),
-                UniformValue::Vec3(v) => gl::Uniform3f(i, v[0], v[1], v[2]),
-                UniformValue::Vec4(v) => gl::Uniform4f(i, v[0], v[1], v[2], v[3]),
-                UniformValue::Matrix4fv(v) => {
-                    gl::UniformMatrix4fv(i, 1, gl::FALSE, v.data.as_slice().as_ptr())
-                }
-            }
         }
     }
 

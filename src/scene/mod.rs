@@ -1,10 +1,9 @@
+use crate::objects::Renderable;
 use crate::scene::camera::Camera;
-use crate::scene::object::Object;
-use crate::shape::{Shape, UniformValue};
+use crate::objects::shape::{Shape, UniformValue};
 use crate::TIME;
 
 pub mod camera;
-pub mod object;
 
 pub struct Scene {
     pub shapes: Vec<Shape>,
@@ -29,19 +28,19 @@ impl<'a> Scene {
     pub fn render(&self) {
         for shape in &self.shapes {
             shape.set_uniform(
-                "model",
+                "model".to_string(),
                 UniformValue::Matrix4fv(shape.transform.get_matrix()),
             );
             shape.set_uniform(
-                "view",
+                "view".to_string(),
                 UniformValue::Matrix4fv(self.camera.get_view_matrix()),
             );
             shape.set_uniform(
-                "projection",
+                "projection".to_string(),
                 UniformValue::Matrix4fv(self.camera.get_projection_matrix()),
             );
             unsafe {
-                shape.set_uniform("time", UniformValue::Float(TIME as f32));
+                shape.set_uniform("time".to_string(), UniformValue::Float(TIME as f32));
             }
             shape.render();
         }
