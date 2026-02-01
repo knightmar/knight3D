@@ -49,13 +49,13 @@ impl Shape {
                                 .and_then(|i| temp_uvs.get(i as usize))
                                 .copied()
                                 .unwrap_or([0.0; 2]);
-                            // let norm = triplet.2.and_then(|i| temp_normals.get(i as usize)).copied().unwrap_or([0.0; 3]);
+                            let norm = triplet.2.and_then(|i| temp_normals.get(i as usize)).copied().unwrap_or([0.0; 3]);
 
                             final_vertices.push(Vertex {
                                 position: pos,
                                 color: [-1.0, -1.0, -1.0],
                                 tex_coords: uv,
-                                // normal: norm,
+                                normal: norm,
                             });
                             i
                         });

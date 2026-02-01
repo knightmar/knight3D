@@ -96,16 +96,16 @@ pub enum UniformValue {
 impl Shape {
     pub fn new(
         name: String,
-        data: Box<[([f32; 3], [f32; 3], [f32; 2])]>, // pos : color : tex_pos
+        data: Box<[([f32; 3], [f32; 3], [f32; 2], [f32; 3])]>, // pos : color : tex_pos : normal
         indices: Option<Vec<u32>>,
         texture_path: &str,
     ) -> Shape {
         let mut vertices = Vec::<Vertex>::new();
-        data.iter().for_each(|(position, color, tex_coords)| {
+        data.iter().for_each(|(position, color, tex_coords, normal)| {
             vertices.push(Vertex {
                 position: *position,
                 color: *color,
-                // normal: [0.0, 0.0, 0.0],
+                normal: *normal,
                 tex_coords: *tex_coords,
             });
         });

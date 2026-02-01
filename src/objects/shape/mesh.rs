@@ -9,7 +9,7 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub color: [f32; 3],
     pub tex_coords: [f32; 2],
-    // pub normal: [f32; 3],
+    pub normal: [f32; 3],
 }
 #[derive(Clone)]
 pub struct MeshData {
@@ -120,7 +120,7 @@ impl MeshGPU {
                 3,
                 gl::FLOAT,
                 gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
+                (11 * size_of::<f32>()) as GLsizei,
                 null(),
             );
             gl::EnableVertexAttribArray(0);
@@ -131,7 +131,7 @@ impl MeshGPU {
                 3,
                 gl::FLOAT,
                 gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
+                (11 * size_of::<f32>()) as GLsizei,
                 (3 * size_of::<f32>()) as *const c_void,
             );
             gl::EnableVertexAttribArray(1);
@@ -142,10 +142,21 @@ impl MeshGPU {
                 2,
                 gl::FLOAT,
                 gl::FALSE,
-                (8 * size_of::<f32>()) as GLsizei,
+                (11 * size_of::<f32>()) as GLsizei,
                 (6 * size_of::<f32>()) as *const c_void,
             );
             gl::EnableVertexAttribArray(2);
+
+            // normal attrib
+            gl::VertexAttribPointer(
+                3,
+                3,
+                gl::FLOAT,
+                gl::FALSE,
+                (11 * size_of::<f32>()) as GLsizei,
+                (8 * size_of::<f32>()) as *const c_void,
+            );
+            gl::EnableVertexAttribArray(3);
         }
 
         self.vao = vao;

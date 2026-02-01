@@ -1,6 +1,8 @@
-use crate::objects::Renderable;
-use crate::scene::camera::Camera;
+use crate::objects::light::directional_light::DirectionalLight;
+use crate::objects::light::Lighting;
 use crate::objects::shape::{Shape, UniformValue};
+use crate::objects::{Renderable, Transform};
+use crate::scene::camera::Camera;
 use crate::TIME;
 
 pub mod camera;
@@ -8,6 +10,7 @@ pub mod camera;
 pub struct Scene {
     pub shapes: Vec<Shape>,
     pub camera: Camera,
+    pub lighting: Lighting,
 }
 
 impl<'a> Scene {
@@ -15,6 +18,13 @@ impl<'a> Scene {
         Scene {
             shapes: vec![],
             camera: Camera::new(),
+            lighting: Lighting {
+                dir_light: Box::from(DirectionalLight {
+                    name: "DirLight".to_string(),
+                    transform: Transform::new_empty(),
+                    color: [0.0, 0.7, 1.0],
+                }),
+            },
         }
     }
 
@@ -25,7 +35,7 @@ impl<'a> Scene {
         self.shapes.remove(i as usize);
     }
 
-    pub fn render(&self) {
+    pub fn render(&mut self) {
         for shape in &self.shapes {
             shape.set_uniform(
                 "model".to_string(),
@@ -39,9 +49,16 @@ impl<'a> Scene {
                 "projection".to_string(),
                 UniformValue::Matrix4fv(self.camera.get_projection_matrix()),
             );
+
+            shape.set_uniform(
+                "viewPos".to_string(),
+                UniformValue::Vec3(self.camera.transform.position),
+            );
+
             unsafe {
                 shape.set_uniform("time".to_string(), UniformValue::Float(TIME as f32));
             }
+            self.lighting.upload_lights(shape);
             shape.render();
         }
     }

@@ -1,5 +1,5 @@
 pub mod shape;
-mod light;
+pub mod light;
 
 use std::ffi::CString;
 use crate::objects::shape::UniformValue;

@@ -258,6 +258,7 @@ impl<'a> Ui<'a> {
                 }
             }
         }
+        
         // Camera look
         {
             use glfw::Action;

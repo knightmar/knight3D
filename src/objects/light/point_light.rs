@@ -1,16 +1,13 @@
-use imgui::Ui;
-use nalgebra_glm::Vec3;
 use crate::objects::light::{Light, LightType};
 use crate::objects::Transform;
-use crate::ui::Inspectable;
 
-pub struct DirectionalLight {
+pub struct PointLight {
     pub name: String,
     pub transform: Transform,
     pub color: [f32; 3]
 }
 
-impl Light for DirectionalLight {
+impl Light for PointLight {
     fn get_type(&self) -> LightType {
         LightType::Directional
     }
@@ -21,16 +18,5 @@ impl Light for DirectionalLight {
 
     fn get_color(&self) -> [f32; 3] {
         self.color
-    }
-}
-
-
-impl Inspectable for DirectionalLight {
-    fn get_object_ui(&mut self, ui: &Ui) {
-        self.transform.default_ui(ui);
-    }
-
-    fn get_object_name(&self) -> String {
-        self.name.clone()
     }
 }
