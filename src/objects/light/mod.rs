@@ -52,7 +52,7 @@ impl Lighting {
 
         shape.set_uniform(
             format_args!("dirLight.diffuse").to_string(),
-            UniformValue::Vec3([0.0, 0.7, 0.6]),
+            UniformValue::Vec3([0.5, 0.5, 0.5]),
         );
     }
 }

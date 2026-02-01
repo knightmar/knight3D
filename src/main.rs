@@ -151,13 +151,13 @@ fn main() {
 
     let mut obj = Shape::from_obj_file(
         "obj".into(),
-        "./obj/cat.obj",
-        "./textures/cat.jpg",
+        "./obj/car.obj",
+        "./textures/car.jpg",
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
-    obj.transform.set_scale([0.1, 0.1, 0.1]);
-    obj.transform.rotate([1.0, 0.0, 0.0], -90.0);
+    obj.transform.set_scale([0.01, 0.01, 0.01]);
+    obj.transform.rotate([1.0, 0.0, 0.0], -0.0);
 
     let scene = Arc::new(Mutex::new(Scene::new()));
 

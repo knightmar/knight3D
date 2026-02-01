@@ -22,7 +22,7 @@ impl<'a> Scene {
                 dir_light: Box::from(DirectionalLight {
                     name: "DirLight".to_string(),
                     transform: Transform::new_empty(),
-                    color: [0.0, 0.7, 1.0],
+                    color: [1.0, 1.0, 1.0],
                 }),
             },
         }
@@ -36,6 +36,8 @@ impl<'a> Scene {
     }
 
     pub fn render(&mut self) {
+        self.lighting.dir_light.transform.rotate([1.0, 1.0, 0.0], 2.0);
+
         for shape in &self.shapes {
             shape.set_uniform(
                 "model".to_string(),
