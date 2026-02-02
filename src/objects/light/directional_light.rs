@@ -26,7 +26,7 @@ impl Light for DirectionalLight {
 
 impl Inspectable for DirectionalLight {
     fn get_object_ui(&mut self, ui: &Ui) {
-        self.transform.default_ui(ui, self.get_object_name());
+        self.transform.default_ui(ui);
         ui.input_float3("Ambient", &mut self.ambient).build();
         ui.input_float3("Diffuse", &mut self.diffuse).build();
         ui.input_float3("Specular", &mut self.specular).build();

@@ -1,8 +1,10 @@
+use crate::objects::shape::Shape;
 use crate::scene::Scene;
 use crate::ui::Inspectable;
 use imgui::{Condition, StyleVar, Ui, Window, WindowFlags};
 use rand::random;
 use std::sync::{Arc, Mutex};
+use crate::objects::Renderable;
 
 pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed_h: f32) {
     let _pad = ui.push_style_var(StyleVar::WindowPadding([0.0, 0.0]));
@@ -37,9 +39,18 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
             }
 
             if ui.button("New cube") {
-                if let Some(shape) = scene.shapes.get(2).cloned() {
-                    scene.add_shape(shape);
-                }
+                let mut shape1 = Shape::from_obj_file(
+                    "Spawned cube".to_string(),
+                    "./obj/CUBE.obj",
+                    "./textures/dummy.png",
+                )
+                    .unwrap();
+                shape1.init_shaders("vertex_shader", "fragment_shader");
+
+                scene.add_shape(
+                    shape1.clone(),
+                );
+
             }
 
             if ui.button("Delete All") {
@@ -58,13 +69,30 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
                 ui.separator();
             }
 
+            let mut to_delete = None;
+            let mut to_duplicate = None;
+
             for (i, shape) in scene.shapes.iter_mut().enumerate() {
-                {
-                    let _id = ui.push_id_usize(i);
-                    ui.text(shape.get_object_name());
-                    shape.get_object_ui(*window_ui);
-                    ui.separator();
+                let _id = ui.push_id_usize(i);
+                ui.text(shape.get_object_name());
+                shape.get_object_ui(*window_ui);
+
+                if ui.button("Delete") {
+                    to_delete = Some(i);
                 }
+
+                if ui.button("Duplicate object") {
+                    to_duplicate = Some(shape.clone());
+                }
+                ui.separator();
+            }
+
+            if let Some(index) = to_delete {
+                scene.remove_shape(index as u32);
+            }
+
+            if let Some(new_shape) = to_duplicate {
+                scene.add_shape(new_shape);
             }
 
             // lights

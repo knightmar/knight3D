@@ -1,7 +1,7 @@
 pub mod light;
 pub mod shape;
 
-use crate::objects::shape::UniformValue;
+use crate::objects::shape::{Shape, UniformValue};
 use crate::utils::{euler_deg_from_quat, quat_from_euler_deg};
 use imgui::Ui;
 use nalgebra_glm::{Mat4, Quat};
@@ -60,7 +60,7 @@ impl Transform {
         }
     }
 
-    pub fn default_ui(&mut self, ui: &Ui, id: String) {
+    pub fn default_ui(&mut self, ui: &Ui) {
         ui.input_float3(
             format_args!("Position##transform").to_string(),
             &mut self.position,
@@ -73,6 +73,12 @@ impl Transform {
 
         let changed = ui
             .input_float3("Rotation##transform", &mut self.rotation_ui)
+            .build();
+
+        ui.input_float3(
+            format_args!("Scale##transform").to_string(),
+            &mut self.scale,
+        )
             .build();
 
         let active = ui.is_item_active();

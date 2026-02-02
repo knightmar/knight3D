@@ -28,7 +28,7 @@ impl Camera {
 
 impl Inspectable for Camera {
     fn get_object_ui(&mut self, ui: &Ui) {
-        self.transform.default_ui(ui, self.get_object_name());
+        self.transform.default_ui(ui);
     }
 
     fn get_object_name(&self) -> String {
