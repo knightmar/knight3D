@@ -41,6 +41,7 @@ fn main() {
     unsafe {
         gl::Viewport(0, 0, 800, 600);
         gl::Enable(gl::DEPTH_TEST);
+
     }
 
     let vertices: [([f32; 3], [f32; 3], [f32; 2], [f32; 3]); 24] = [

@@ -7,7 +7,10 @@ use crate::ui::Inspectable;
 pub struct DirectionalLight {
     pub name: String,
     pub transform: Transform,
-    pub color: [f32; 3]
+
+    pub ambient: [f32; 3],
+    pub diffuse: [f32; 3],
+    pub specular: [f32; 3],
 }
 
 impl Light for DirectionalLight {
@@ -18,16 +21,15 @@ impl Light for DirectionalLight {
     fn get_transform(&self) -> Transform {
         self.transform
     }
-
-    fn get_color(&self) -> [f32; 3] {
-        self.color
-    }
 }
 
 
 impl Inspectable for DirectionalLight {
     fn get_object_ui(&mut self, ui: &Ui) {
-        self.transform.default_ui(ui);
+        self.transform.default_ui(ui, self.get_object_name());
+        ui.input_float3("Ambient", &mut self.ambient).build();
+        ui.input_float3("Diffuse", &mut self.diffuse).build();
+        ui.input_float3("Specular", &mut self.specular).build();
     }
 
     fn get_object_name(&self) -> String {

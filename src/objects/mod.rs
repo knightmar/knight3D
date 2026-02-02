@@ -1,11 +1,11 @@
-pub mod shape;
 pub mod light;
+pub mod shape;
 
-use std::ffi::CString;
 use crate::objects::shape::UniformValue;
 use crate::utils::{euler_deg_from_quat, quat_from_euler_deg};
 use imgui::Ui;
 use nalgebra_glm::{Mat4, Quat};
+use std::ffi::CString;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Transform {
@@ -60,9 +60,12 @@ impl Transform {
         }
     }
 
-    pub fn default_ui(&mut self, ui: &Ui) {
-        ui.input_float3("Position##transform", &mut self.position)
-            .build();
+    pub fn default_ui(&mut self, ui: &Ui, id: String) {
+        ui.input_float3(
+            format_args!("Position##transform").to_string(),
+            &mut self.position,
+        )
+        .build();
 
         if !self.rotation_ui_editing {
             self.rotation_ui = euler_deg_from_quat(self.rotation);
@@ -106,8 +109,7 @@ pub trait Renderable {
     fn set_uniform(&self, name: String, value: UniformValue) {
         unsafe {
             let shader_program = self.get_program_id();
-            let i =
-                gl::GetUniformLocation(shader_program, CString::new(name).unwrap().as_ptr());
+            let i = gl::GetUniformLocation(shader_program, CString::new(name).unwrap().as_ptr());
             gl::UseProgram(shader_program);
             match value {
                 UniformValue::Float(v) => gl::Uniform1f(i, v),

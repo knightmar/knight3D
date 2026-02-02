@@ -22,7 +22,9 @@ impl<'a> Scene {
                 dir_light: Box::from(DirectionalLight {
                     name: "DirLight".to_string(),
                     transform: Transform::new_empty(),
-                    color: [1.0, 1.0, 1.0],
+                    ambient: [1.0, 1.0, 1.0],
+                    diffuse: [1.0, 1.0, 1.0],
+                    specular: [1.0, 1.0, 1.0],
                 }),
             },
         }
@@ -36,7 +38,7 @@ impl<'a> Scene {
     }
 
     pub fn render(&mut self) {
-        self.lighting.dir_light.transform.rotate([1.0, 1.0, 0.0], 2.0);
+        // self.lighting.dir_light.transform.rotate([1.0, 1.0, 0.0], 2.0);
 
         for shape in &self.shapes {
             shape.set_uniform(
@@ -60,6 +62,10 @@ impl<'a> Scene {
             unsafe {
                 shape.set_uniform("time".to_string(), UniformValue::Float(TIME as f32));
             }
+            shape.set_uniform(
+                format_args!("shininess").to_string(),
+                UniformValue::Float(32.0),
+            );
             self.lighting.upload_lights(shape);
             shape.render();
         }

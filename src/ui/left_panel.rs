@@ -51,21 +51,27 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
             ui.separator();
             ui.text("Object list:");
 
-            let _ = ui.push_id("camera");
-            ui.text(scene.camera.get_object_name());
-            scene.camera.get_object_ui(*window_ui);
-            ui.separator();
-
-            for (i, shape) in scene.shapes.iter_mut().enumerate() {
-                let _id = ui.push_id_usize(i);
-                ui.text(shape.get_object_name());
-                shape.get_object_ui(*window_ui);
+            {
+                let _id = ui.push_id("camera");
+                ui.text(scene.camera.get_object_name());
+                scene.camera.get_object_ui(*window_ui);
                 ui.separator();
             }
 
+            for (i, shape) in scene.shapes.iter_mut().enumerate() {
+                {
+                    let _id = ui.push_id_usize(i);
+                    ui.text(shape.get_object_name());
+                    shape.get_object_ui(*window_ui);
+                    ui.separator();
+                }
+            }
+
             // lights
-            let _ = ui.push_id(scene.lighting.dir_light.get_object_name());
-            ui.text(scene.lighting.dir_light.get_object_name());
-            scene.lighting.dir_light.get_object_ui(ui);
+            {
+                let _id = ui.push_id(scene.lighting.dir_light.get_object_name());
+                ui.text(scene.lighting.dir_light.get_object_name());
+                scene.lighting.dir_light.get_object_ui(ui);
+            }
         });
 }

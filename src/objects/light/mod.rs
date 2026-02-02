@@ -14,7 +14,6 @@ pub enum LightType {
 trait Light {
     fn get_type(&self) -> LightType;
     fn get_transform(&self) -> Transform;
-    fn get_color(&self) -> [f32; 3];
 }
 
 pub struct Lighting {
@@ -47,12 +46,17 @@ impl Lighting {
 
         shape.set_uniform(
             format_args!("dirLight.ambient").to_string(),
-            UniformValue::Vec3(self.dir_light.color),
+            UniformValue::Vec3(self.dir_light.ambient),
         );
 
         shape.set_uniform(
             format_args!("dirLight.diffuse").to_string(),
-            UniformValue::Vec3([0.5, 0.5, 0.5]),
+            UniformValue::Vec3(self.dir_light.diffuse),
+        );
+
+        shape.set_uniform(
+            format_args!("dirLight.specular").to_string(),
+            UniformValue::Vec3(self.dir_light.specular),
         );
     }
 }

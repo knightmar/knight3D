@@ -75,7 +75,7 @@ impl Renderable for Shape {
 
 impl Inspectable for Shape {
     fn get_object_ui(&mut self, ui: &Ui) {
-        self.transform.default_ui(ui);
+        self.transform.default_ui(ui, self.get_object_name());
     }
 
     fn get_object_name(&self) -> String {
@@ -101,14 +101,15 @@ impl Shape {
         texture_path: &str,
     ) -> Shape {
         let mut vertices = Vec::<Vertex>::new();
-        data.iter().for_each(|(position, color, tex_coords, normal)| {
-            vertices.push(Vertex {
-                position: *position,
-                color: *color,
-                normal: *normal,
-                tex_coords: *tex_coords,
+        data.iter()
+            .for_each(|(position, color, tex_coords, normal)| {
+                vertices.push(Vertex {
+                    position: *position,
+                    color: *color,
+                    normal: *normal,
+                    tex_coords: *tex_coords,
+                });
             });
-        });
 
         Self::new_from_vertex(name, vertices, indices, texture_path)
     }

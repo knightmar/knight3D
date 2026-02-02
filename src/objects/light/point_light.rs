@@ -15,8 +15,5 @@ impl Light for PointLight {
     fn get_transform(&self) -> Transform {
         self.transform
     }
-
-    fn get_color(&self) -> [f32; 3] {
-        self.color
-    }
+    
 }
