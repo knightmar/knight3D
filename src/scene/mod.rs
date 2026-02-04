@@ -62,10 +62,6 @@ impl<'a> Scene {
             unsafe {
                 shape.set_uniform("time".to_string(), UniformValue::Float(TIME as f32));
             }
-            shape.set_uniform(
-                format_args!("shininess").to_string(),
-                UniformValue::Float(32.0),
-            );
             self.lighting.upload_lights(shape);
             shape.render();
         }

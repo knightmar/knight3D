@@ -1,21 +1,23 @@
+mod objects;
 mod scene;
 mod shader;
 mod texture;
 mod ui;
 mod utils;
-mod objects;
 
+use crate::objects::material::Material;
+use crate::objects::Renderable;
 use crate::scene::Scene;
-use objects::shape::Shape;
+use crate::texture::Texture;
 use crate::ui::Ui;
 use gl;
 use glfw::Key::Escape;
 use glfw::{Context, Window};
+use objects::shape::Shape;
 use std::ops::Not;
 use std::process::exit;
 use std::ptr::null;
 use std::sync::{Arc, Mutex};
-use crate::objects::Renderable;
 
 pub static mut TIME: f64 = 0.0;
 
@@ -41,119 +43,38 @@ fn main() {
     unsafe {
         gl::Viewport(0, 0, 800, 600);
         gl::Enable(gl::DEPTH_TEST);
-
     }
 
-    let vertices: [([f32; 3], [f32; 3], [f32; 2], [f32; 3]); 24] = [
-        // --- Back Face (Z-) ---
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, 0.0, -1.0]),
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, 0.0, -1.0]),
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0], [0.0, 0.0, -1.0]),
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0], [0.0, 0.0, -1.0]),
-
-        // --- Front Face (Z+) ---
-        ([0.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, 0.0, 1.0]),
-        ([1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, 0.0, 1.0]),
-        ([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0], [0.0, 0.0, 1.0]),
-        ([0.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0], [0.0, 0.0, 1.0]),
-
-        // --- Left Face (X-) ---
-        ([0.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0], [-1.0, 0.0, 0.0]),
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [-1.0, 0.0, 0.0]),
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0], [-1.0, 0.0, 0.0]),
-        ([0.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0], [-1.0, 0.0, 0.0]),
-
-        // --- Right Face (X+) ---
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [1.0, 0.0, 0.0]),
-        ([1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.0], [1.0, 0.0, 0.0]),
-        ([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0], [1.0, 0.0, 0.0]),
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0], [1.0, 0.0, 0.0]),
-
-        // --- Top Face (Y+) ---
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, 1.0, 0.0]),
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, 1.0, 0.0]),
-        ([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0], [0.0, 1.0, 0.0]),
-        ([0.0, 1.0, 1.0], [1.0, 1.0, 1.0], [0.0, 1.0], [0.0, 1.0, 0.0]),
-
-        // --- Bottom Face (Y-) ---
-        ([0.0, 0.0, 1.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, -1.0, 0.0]),
-        ([1.0, 0.0, 1.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, -1.0, 0.0]),
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0], [0.0, -1.0, 0.0]),
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0], [0.0, -1.0, 0.0]),
-    ];
-
-    let vertices2: [([f32; 3], [f32; 3], [f32; 2], [f32; 3]); 16] = [
-        // --- SIDE 1 (front: Y is decreasing) ---
-        // Normal calculation: Cross product of (1,0,0) and (0.5, 0.5, 1) -> (0, -1, 0.5) normalized
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, -0.894, 0.447]), // base front-left
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, -0.894, 0.447]), // base front-right
-        ([0.5, 0.5, 1.0], [1.0, 1.0, 1.0], [0.5, 1.0], [0.0, -0.894, 0.447]), // apex
-
-        // --- SIDE 2 (right: X is increasing) ---
-        // Normal calculation: (1, 0, 0.5) normalized
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.894, 0.0, 0.447]),
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.894, 0.0, 0.447]),
-        ([0.5, 0.5, 1.0], [1.0, 1.0, 1.0], [0.5, 1.0], [0.894, 0.0, 0.447]),
-
-        // --- SIDE 3 (back: Y is increasing) ---
-        // Normal calculation: (0, 1, 0.5) normalized
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, 0.894, 0.447]),
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, 0.894, 0.447]),
-        ([0.5, 0.5, 1.0], [1.0, 1.0, 1.0], [0.5, 1.0], [0.0, 0.894, 0.447]),
-
-        // --- SIDE 4 (left: X is decreasing) ---
-        // Normal calculation: (-1, 0, 0.5) normalized
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [-0.894, 0.0, 0.447]),
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [-0.894, 0.0, 0.447]),
-        ([0.5, 0.5, 1.0], [1.0, 1.0, 1.0], [0.5, 1.0], [-0.894, 0.0, 0.447]),
-
-        // --- BASE (square) ---
-        // Normal is pointing straight down
-        ([0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0], [0.0, 0.0, -1.0]),
-        ([1.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0], [0.0, 0.0, -1.0]),
-        ([1.0, 1.0, 0.0], [1.0, 1.0, 1.0], [1.0, 1.0], [0.0, 0.0, -1.0]),
-        ([0.0, 1.0, 0.0], [1.0, 1.0, 1.0], [0.0, 1.0], [0.0, 0.0, -1.0]),
-    ];
-
-    let indices: [u32; 36] = [
-        // Avant
-        0, 1, 2, 0, 2, 3, // Arrière
-        4, 6, 5, 4, 7, 6, // Gauche
-        8, 9, 10, 8, 10, 11, // Droite
-        12, 13, 14, 12, 14, 15, // Haut
-        16, 17, 18, 16, 18, 19, // Bas
-        20, 21, 22, 20, 22, 23,
-    ];
-
-    let indices2: [u32; 18] = [
-        // Side 1
-        0, 1, 2, // Side 2
-        3, 4, 5, // Side 3
-        6, 7, 8, // Side 4
-        9, 10, 11, // Base (two triangles)
-        12, 13, 14, 12, 14, 15,
-    ];
-
-    let mut shape2 = Shape::new(
+    let mut shape2 = Shape::from_obj_file(
         "Pyramid".into(),
-        Box::from(vertices2),
-        Some(indices2.to_vec()),
-        "./textures/debug.png",
-    );
+        "./obj/triangle.obj",
+        Material {
+            ambient: Texture::new("./textures/debug.png").unwrap(),
+            specular: None,
+            shininess: 32.0,
+        },
+    ).unwrap();
     shape2.init_shaders("vertex_shader", "fragment_shader");
 
-    let mut shape = Shape::new(
+    let mut shape = Shape::from_obj_file(
         "Cube".into(),
-        Box::from(vertices),
-        Some(indices.to_vec()),
-        "./textures/dummy.png",
-    );
+        "./obj/cube.obj",
+        Material {
+            ambient: Texture::new("./textures/dummy.png").unwrap(),
+            specular: None,
+            shininess: 32.0,
+        },
+    ).unwrap();
     shape.init_shaders("vertex_shader", "fragment_shader");
 
     let mut obj = Shape::from_obj_file(
         "obj".into(),
         "./obj/car.obj",
-        "./textures/car.jpg",
+        Material {
+            ambient: Texture::new("./textures/car.jpg").unwrap(),
+            specular: Some(Texture::new("./textures/car_specular_test.jpeg").unwrap()),
+            shininess: 32.0,
+        },
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");

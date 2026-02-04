@@ -1,6 +1,6 @@
 pub mod light;
 pub mod shape;
-mod material;
+pub mod material;
 
 use crate::objects::shape::{Shape, UniformValue};
 use crate::utils::{euler_deg_from_quat, quat_from_euler_deg};

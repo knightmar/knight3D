@@ -18,6 +18,12 @@ impl Texture {
             .expect("err when decode texture")
             .flipv();
 
+        let format = match img.color() {
+            image::ColorType::Rgb8 => gl::RGB,
+            image::ColorType::Rgba8 => gl::RGBA,
+            _ => gl::RGB,
+        };
+
         let mut texture_id: GLuint = 0;
 
         unsafe {
@@ -28,11 +34,11 @@ impl Texture {
             gl::TexImage2D(
                 gl::TEXTURE_2D,
                 0,
-                gl::RGB as GLint,
+                format as GLint,
                 img.width() as GLsizei,
                 img.height() as GLsizei,
                 0,
-                gl::RGB,
+                format,
                 gl::UNSIGNED_BYTE,
                 img.as_bytes().as_ptr() as *const c_void,
             );

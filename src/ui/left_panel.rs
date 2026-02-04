@@ -1,10 +1,12 @@
+use crate::objects::material::Material;
 use crate::objects::shape::Shape;
+use crate::objects::Renderable;
 use crate::scene::Scene;
+use crate::texture::Texture;
 use crate::ui::Inspectable;
 use imgui::{Condition, StyleVar, Ui, Window, WindowFlags};
 use rand::random;
 use std::sync::{Arc, Mutex};
-use crate::objects::Renderable;
 
 pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed_h: f32) {
     let _pad = ui.push_style_var(StyleVar::WindowPadding([0.0, 0.0]));
@@ -41,16 +43,17 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
             if ui.button("New cube") {
                 let mut shape1 = Shape::from_obj_file(
                     "Spawned cube".to_string(),
-                    "./obj/CUBE.obj",
-                    "./textures/dummy.png",
+                    "./obj/cube.obj",
+                    Material {
+                        ambient: Texture::new("./textures/dummy.png").unwrap(),
+                        specular: None,
+                        shininess: 32.0,
+                    },
                 )
-                    .unwrap();
+                .unwrap();
                 shape1.init_shaders("vertex_shader", "fragment_shader");
 
-                scene.add_shape(
-                    shape1.clone(),
-                );
-
+                scene.add_shape(shape1.clone());
             }
 
             if ui.button("Delete All") {

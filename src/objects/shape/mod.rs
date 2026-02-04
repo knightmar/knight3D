@@ -1,10 +1,10 @@
 mod mesh;
 pub mod obj_parsing;
 
+use crate::objects::material::Material;
 use crate::objects::shape::mesh::{Mesh, MeshData, MeshGPU, Vertex};
 use crate::objects::{Renderable, Transform};
 use crate::shader::Shader;
-use crate::texture::Texture;
 use crate::ui::Inspectable;
 use gl::types::*;
 use gl::{FRAGMENT_SHADER, VERTEX_SHADER};
@@ -23,7 +23,7 @@ use std::rc::Rc;
 pub struct Shape {
     pub name: String,
     mesh: Rc<Mesh>,
-    pub texture: Texture,
+    pub material: Material,
     pub shader_program: GLuint,
     pub transform: Transform,
 }
@@ -36,7 +36,7 @@ impl Renderable for Shape {
     fn render(&self) {
         unsafe {
             gl::UseProgram(self.shader_program);
-            gl::BindTexture(gl::TEXTURE_2D, self.texture.texture_id);
+            self.material.bind(self);
             gl::BindVertexArray(self.mesh.mesh_gpu.vao);
             if self.mesh.mesh_gpu.index_count > 0 {
                 gl::DrawElements(
@@ -98,7 +98,7 @@ impl Shape {
         name: String,
         data: Box<[([f32; 3], [f32; 3], [f32; 2], [f32; 3])]>, // pos : color : tex_pos : normal
         indices: Option<Vec<u32>>,
-        texture_path: &str,
+        material: Material,
     ) -> Shape {
         let mut vertices = Vec::<Vertex>::new();
         data.iter()
@@ -111,17 +111,15 @@ impl Shape {
                 });
             });
 
-        Self::new_from_vertex(name, vertices, indices, texture_path)
+        Self::new_from_vertex(name, vertices, indices, material)
     }
 
     pub fn new_from_vertex(
         name: String,
         data: Vec<Vertex>,
         indices: Option<Vec<u32>>,
-        texture_path: &str,
+        material: Material,
     ) -> Shape {
-        let texture = Texture::new(texture_path).unwrap();
-
         let mesh_data = MeshData {
             vertices: data,
             indices: indices.clone(),
@@ -139,7 +137,7 @@ impl Shape {
             name,
             mesh: Rc::from(mesh),
             shader_program: 0,
-            texture,
+            material,
             transform: Transform::new_empty(),
         }
     }

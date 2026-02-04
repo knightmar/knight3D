@@ -1,9 +1,10 @@
 use crate::objects::shape::mesh::Vertex;
 use crate::objects::shape::Shape;
 use std::collections::HashMap;
+use crate::objects::material::Material;
 
 impl Shape {
-    pub fn from_obj_file(name: String, obj_path: &str, texture_path: &str) -> Result<Self, String> {
+    pub fn from_obj_file(name: String, obj_path: &str, material: Material) -> Result<Self, String> {
         let content = std::fs::read_to_string(obj_path)
             .map_err(|e| format!("Erreur lors de la lecture de '{obj_path}': {e}"))?;
         let mut temp_positions = Vec::new();
@@ -80,7 +81,7 @@ impl Shape {
             } else {
                 Some(final_indices)
             },
-            texture_path,
+            material,
         ))
     }
 
