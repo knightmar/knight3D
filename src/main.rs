@@ -157,7 +157,7 @@ fn main() {
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
-    obj.transform.set_scale([0.01, 0.01, 0.01]);
+    // obj.transform.set_scale([0.01, 0.01, 0.01]);
     obj.transform.rotate([1.0, 0.0, 0.0], -0.0);
 
     let scene = Arc::new(Mutex::new(Scene::new()));
