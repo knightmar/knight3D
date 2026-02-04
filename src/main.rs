@@ -24,7 +24,7 @@ fn main() {
         std::env::set_var("GDK_BACKEND", "x11");
     }
     let mut glfw = glfw::init(glfw::fail_on_errors).unwrap();
-    glfw.window_hint(glfw::WindowHint::ContextVersion(4, 6));
+    glfw.window_hint(glfw::WindowHint::ContextVersion(3, 3));
     glfw.window_hint(glfw::WindowHint::OpenGlProfile(
         glfw::OpenGlProfileHint::Core,
     ));
@@ -152,11 +152,12 @@ fn main() {
 
     let mut obj = Shape::from_obj_file(
         "obj".into(),
-        "./obj/rafale.obj",
-        "./textures/rafale.png",
+        "./obj/car.obj",
+        "./textures/car.jpg",
     )
     .unwrap();
     obj.init_shaders("vertex_shader", "fragment_shader");
+    obj.transform.set_scale([0.01, 0.01, 0.01]);
     obj.transform.rotate([1.0, 0.0, 0.0], -0.0);
 
     let scene = Arc::new(Mutex::new(Scene::new()));
