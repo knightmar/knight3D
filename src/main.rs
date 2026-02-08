@@ -5,8 +5,10 @@ mod texture;
 mod ui;
 mod utils;
 
+use crate::objects::light::LightType::Point;
+use crate::objects::light::point_light::PointLight;
 use crate::objects::material::Material;
-use crate::objects::Renderable;
+use crate::objects::{Renderable, Transform};
 use crate::scene::Scene;
 use crate::texture::Texture;
 use crate::ui::Ui;
@@ -53,7 +55,8 @@ fn main() {
             specular: None,
             shininess: 32.0,
         },
-    ).unwrap();
+    )
+    .unwrap();
     shape2.init_shaders("vertex_shader", "fragment_shader");
 
     let mut shape = Shape::from_obj_file(
@@ -64,7 +67,8 @@ fn main() {
             specular: None,
             shininess: 32.0,
         },
-    ).unwrap();
+    )
+    .unwrap();
     shape.init_shaders("vertex_shader", "fragment_shader");
 
     let mut obj = Shape::from_obj_file(
@@ -100,6 +104,21 @@ fn main() {
         .camera
         .transform
         .rotate([0.0, -40.0, 0.0], 15.0);
+    scene
+        .lock()
+        .unwrap()
+        .lighting
+        .point_lights
+        .push(PointLight {
+            name: "Pointlight".to_string(),
+            transform: Transform::default(),
+            ambient: [1.0, 1.0, 1.0],
+            diffuse: [1.0, 1.0, 1.0],
+            specular: [1.0, 1.0, 1.0],
+            constant: 1.0,
+            linear: 0.09,
+            quadratic: 0.032,
+        });
 
     while (&ui.ui_data.window.should_close()).not() {
         ui.ui_data.glfw.poll_events();

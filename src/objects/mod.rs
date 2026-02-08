@@ -8,7 +8,7 @@ use imgui::Ui;
 use nalgebra_glm::{Mat4, Quat};
 use std::ffi::CString;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Transform {
     pub(crate) position: [f32; 3],
     pub(crate) rotation: Quat,

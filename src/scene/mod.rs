@@ -26,6 +26,7 @@ impl<'a> Scene {
                     diffuse: [1.0, 1.0, 1.0],
                     specular: [1.0, 1.0, 1.0],
                 }),
+                point_lights: vec![],
             },
         }
     }
