@@ -119,6 +119,21 @@ fn main() {
             linear: 0.09,
             quadratic: 0.032,
         });
+    scene
+        .lock()
+        .unwrap()
+        .lighting
+        .point_lights
+        .push(PointLight {
+            name: "Pointlight2".to_string(),
+            transform: Transform::default(),
+            ambient: [1.0, 1.0, 1.0],
+            diffuse: [1.0, 1.0, 1.0],
+            specular: [1.0, 1.0, 1.0],
+            constant: 1.0,
+            linear: 0.09,
+            quadratic: 0.032,
+        });
 
     while (&ui.ui_data.window.should_close()).not() {
         ui.ui_data.glfw.poll_events();
