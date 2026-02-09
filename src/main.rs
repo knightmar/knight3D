@@ -5,7 +5,6 @@ mod texture;
 mod ui;
 mod utils;
 
-use crate::objects::light::LightType::Point;
 use crate::objects::light::point_light::PointLight;
 use crate::objects::material::Material;
 use crate::objects::{Renderable, Transform};
@@ -47,30 +46,6 @@ fn main() {
         gl::Enable(gl::DEPTH_TEST);
     }
 
-    let mut shape2 = Shape::from_obj_file(
-        "Pyramid".into(),
-        "./obj/triangle.obj",
-        Material {
-            ambient: Texture::new("./textures/debug.png").unwrap(),
-            specular: None,
-            shininess: 32.0,
-        },
-    )
-    .unwrap();
-    shape2.init_shaders("vertex_shader", "fragment_shader");
-
-    let mut shape = Shape::from_obj_file(
-        "Cube".into(),
-        "./obj/cube.obj",
-        Material {
-            ambient: Texture::new("./textures/dummy.png").unwrap(),
-            specular: None,
-            shininess: 32.0,
-        },
-    )
-    .unwrap();
-    shape.init_shaders("vertex_shader", "fragment_shader");
-
     let mut obj = Shape::from_obj_file(
         "obj".into(),
         "./obj/car.obj",
@@ -89,8 +64,6 @@ fn main() {
 
     let mut ui = Ui::init(glfw, &mut window, events, scene.clone());
 
-    scene.lock().unwrap().add_shape(shape.clone());
-    scene.lock().unwrap().add_shape(shape2.clone());
     scene.lock().unwrap().add_shape(obj.clone());
     scene
         .lock()
@@ -111,10 +84,38 @@ fn main() {
         .point_lights
         .push(PointLight {
             name: "Pointlight".to_string(),
-            transform: Transform::default(),
-            ambient: [1.0, 1.0, 1.0],
-            diffuse: [1.0, 1.0, 1.0],
-            specular: [1.0, 1.0, 1.0],
+            transform: Transform {
+                position: [-10.0, 5.0, 0.0],
+                rotation: Default::default(),
+                rotation_ui: [0.0, 0.0, 0.0],
+                rotation_ui_editing: false,
+                scale: [0.0, 0.0, 0.0],
+            },
+            ambient: [0.0, 0.0, 1.0],
+            diffuse: [0.0, 0.0, 1.0],
+            specular: [0.0, 0.0, 1.0],
+            constant: 1.0,
+            linear: 0.09,
+            quadratic: 0.032,
+        });
+
+    scene
+        .lock()
+        .unwrap()
+        .lighting
+        .point_lights
+        .push(PointLight {
+            name: "Pointlight".to_string(),
+            transform: Transform {
+                position: [10.0, 5.0, 0.0],
+                rotation: Default::default(),
+                rotation_ui: [0.0, 0.0, 0.0],
+                rotation_ui_editing: false,
+                scale: [0.0, 0.0, 0.0],
+            },
+            ambient: [1.0, 0.0, 0.0],
+            diffuse: [1.0, 0.0, 0.0],
+            specular: [1.0, 0.0, 0.0],
             constant: 1.0,
             linear: 0.09,
             quadratic: 0.032,

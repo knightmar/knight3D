@@ -1,6 +1,6 @@
-use crate::objects::Renderable;
 use crate::objects::material::Material;
 use crate::objects::shape::Shape;
+use crate::objects::Renderable;
 use crate::scene::Scene;
 use crate::texture::Texture;
 use crate::ui::Inspectable;
@@ -104,8 +104,8 @@ pub fn left_panel_ui<'a>(ui: &mut Ui, scene: &Arc<Mutex<Scene>>, fps: u32, fixed
                 ui.text(scene.lighting.dir_light.get_object_name());
                 scene.lighting.dir_light.get_object_ui(ui);
 
-                for point_light in scene.lighting.point_lights.iter_mut() {
-                    let _id = ui.push_id(point_light.get_object_name());
+                for (i, point_light) in scene.lighting.point_lights.iter_mut().enumerate() {
+                    let _id = ui.push_id_usize(i);
                     ui.spacing();
                     ui.text(point_light.get_object_name());
                     point_light.get_object_ui(ui);

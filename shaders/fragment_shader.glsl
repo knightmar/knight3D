@@ -38,7 +38,7 @@ uniform float time;
 uniform Material material;
 uniform DirLight dirLight;
 uniform vec3 viewPos;
-uniform PointLight[256] pointLights;
+uniform PointLight[16] pointLights;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 diffuse_text, vec3 specular_text) {
     // ambient

@@ -227,8 +227,11 @@ impl<'a> Ui<'a> {
                 let cam = &mut scene.camera;
 
                 let rot = na::UnitQuaternion::from_quaternion(cam.transform.rotation);
-                let forward: na::Vector3<f32> = rot * na::Vector3::new(0.0, 0.0, -1.0);
-                let right: na::Vector3<f32> = rot * na::Vector3::new(1.0, 0.0, 0.0);
+                let raw_forward: na::Vector3<f32> = rot * na::Vector3::new(0.0, 0.0, -1.0);
+                let raw_right: na::Vector3<f32> = rot * na::Vector3::new(1.0, 0.0, 0.0);
+                let forward = na::Vector3::new(raw_forward.x, 0.0, raw_forward.z).normalize();
+                let right = na::Vector3::new(raw_right.x, 0.0, raw_right.z).normalize();
+
                 let up: na::Vector3<f32> = na::Vector3::new(0.0, 1.0, 0.0); // world up
 
                 let mut delta = na::Vector3::zeros();
@@ -258,7 +261,7 @@ impl<'a> Ui<'a> {
                 }
             }
         }
-        
+
         // Camera look
         {
             use glfw::Action;

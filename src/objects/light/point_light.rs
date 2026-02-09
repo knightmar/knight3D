@@ -29,12 +29,12 @@ impl Light for PointLight {
 impl Inspectable for PointLight {
     fn get_object_ui(&mut self, ui: &Ui) {
         self.transform.default_ui(ui);
-        ui.input_float3("Ambient", &mut self.ambient).build();
-        ui.input_float3("Diffuse", &mut self.diffuse).build();
-        ui.input_float3("Specular", &mut self.specular).build();
-        ui.input_float("Constant", &mut self.constant).build();
-        ui.input_float("Linear", &mut self.linear).build();
-        ui.input_float("Quadratic", &mut self.quadratic).build();
+        ui.input_float3("Ambient##pointlight", &mut self.ambient).build();
+        ui.input_float3("Diffuse##pointlight", &mut self.diffuse).build();
+        ui.input_float3("Specular##pointlight", &mut self.specular).build();
+        ui.input_float("Constant##pointlight", &mut self.constant).build();
+        ui.input_float("Linear##pointlight", &mut self.linear).build();
+        ui.input_float("Quadratic##pointlight", &mut self.quadratic).build();
     }
 
     fn get_object_name(&self) -> String {
