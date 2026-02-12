@@ -153,42 +153,46 @@ fn main() {
         .run(move |event, window_target| {
             window_target.set_control_flow(ControlFlow::Poll);
             ui.handle_event(&window, &event);
-
-            match event {
+            match &event {
                 Event::NewEvents(_) => {
                     ui.update_delta_time();
                     unsafe {
                         TIME = START_TIME.get().unwrap().elapsed().as_secs_f64();
                     }
                 }
-                Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => {
-                        window_target.exit();
-                    }
-                    WindowEvent::Resized(size) => {
-                        if size.width != 0 && size.height != 0 {
-                            gl_surface.resize(
-                                &gl_context,
-                                NonZeroU32::new(size.width).unwrap(),
-                                NonZeroU32::new(size.height).unwrap(),
-                            );
+                Event::WindowEvent {
+                    event: window_event,
+                    ..
+                } => {
+                    match window_event {
+                        WindowEvent::CloseRequested => {
+                            window_target.exit();
                         }
-                    }
-                    WindowEvent::RedrawRequested => {
-                        unsafe {
-                            gl::ClearColor(0.0, 0.0, 0.0, 1.0);
-                            gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+                        WindowEvent::Resized(size) => {
+                            if size.width != 0 && size.height != 0 {
+                                gl_surface.resize(
+                                    &gl_context,
+                                    NonZeroU32::new(size.width).unwrap(),
+                                    NonZeroU32::new(size.height).unwrap(),
+                                );
+                            }
                         }
+                        WindowEvent::RedrawRequested => {
+                            unsafe {
+                                gl::ClearColor(0.0, 0.0, 0.0, 1.0);
+                                gl::Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
+                            }
 
-                        scene.lock().unwrap().render();
+                            scene.lock().unwrap().render();
 
-                        ui.prepare_frame(&window);
-                        ui.render();
+                            ui.prepare_frame(&window);
+                            ui.render();
 
-                        gl_surface.swap_buffers(&gl_context).unwrap();
+                            gl_surface.swap_buffers(&gl_context).unwrap();
+                        }
+                        _ => {}
                     }
-                    _ => {}
-                },
+                }
                 Event::AboutToWait => {
                     window.request_redraw();
                 }
