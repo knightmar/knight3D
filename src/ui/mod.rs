@@ -7,7 +7,7 @@ use imgui_glow_renderer::{Renderer, SimpleTextureMap};
 use imgui_winit_support::{HiDpiMode, WinitPlatform};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use winit::event::WindowEvent;
+use winit::event::{ElementState, Event, WindowEvent};
 use winit::window::Window;
 
 pub struct Ui {
@@ -39,18 +39,15 @@ impl Ui {
         let mut platform = WinitPlatform::init(&mut imgui);
         platform.attach_window(imgui.io_mut(), window, HiDpiMode::Default);
 
-        let glow_context = unsafe { imgui_glow_renderer::glow::Context::from_loader_function(|s| gl_loader(s)) };
+        let glow_context =
+            unsafe { imgui_glow_renderer::glow::Context::from_loader_function(|s| gl_loader(s)) };
         let glow_context = Arc::new(glow_context);
 
         let mut textures = SimpleTextureMap::default();
 
-        let imgui_renderer = Renderer::initialize(
-            glow_context.as_ref(),
-            &mut imgui,
-            &mut textures,
-            true,
-        )
-        .expect("Failed to initialize imgui renderer");
+        let imgui_renderer =
+            Renderer::initialize(glow_context.as_ref(), &mut imgui, &mut textures, true)
+                .expect("Failed to initialize imgui renderer");
 
         let now = Instant::now();
 
@@ -72,26 +69,65 @@ impl Ui {
 
     pub fn update_delta_time(&mut self) {
         let now = Instant::now();
-        let delta = now.duration_since(self.ui_data.last_imgui_time).as_secs_f32();
+        let delta = now
+            .duration_since(self.ui_data.last_imgui_time)
+            .as_secs_f32();
         self.ui_data.last_imgui_time = now;
         self.ui_data.context.io_mut().delta_time = if delta > 0.0 { delta } else { 1.0 / 60.0 };
     }
 
-    pub fn handle_event(&mut self, window: &Window, event: &winit::event::Event<()>) {
-        self.ui_data.platform.handle_event(self.ui_data.context.io_mut(), window, event);
+    pub fn handle_event(&mut self, window: &Window, event: &Event<()>) {
+        let mut event_to_handle = event;
+
+        let mut modified_event: Option<Event<()>> = None;
+
+        if let Event::WindowEvent {
+            window_id,
+            event:
+                WindowEvent::KeyboardInput {
+                    device_id,
+                    event: key_event,
+                    is_synthetic,
+                },
+        } = event
+        {
+            if key_event.state == ElementState::Released && key_event.text.is_some() {
+                let mut sanitized_key = key_event.clone();
+                sanitized_key.text = None;
+
+                let sanitized_window_event = WindowEvent::KeyboardInput {
+                    device_id: *device_id,
+                    event: sanitized_key,
+                    is_synthetic: *is_synthetic,
+                };
+
+                modified_event = Some(Event::WindowEvent {
+                    window_id: *window_id,
+                    event: sanitized_window_event,
+                });
+            }
+        }
+
+        if let Some(ref evt) = modified_event {
+            event_to_handle = evt;
+        }
+
+        self.ui_data
+            .platform
+            .handle_event(self.ui_data.context.io_mut(), window, event_to_handle);
 
         match event {
-            winit::event::Event::WindowEvent { event, .. } => match event {
-                WindowEvent::Resized(size) => unsafe {
-                    gl::Viewport(0, 0, size.width as i32, size.height as i32);
-                    self.ui_data
-                        .scene
-                        .lock()
-                        .unwrap()
-                        .camera
-                        .set_aspect(size.width as f32, size.height as f32);
-                },
-                _ => {}
+            Event::WindowEvent {
+                event: WindowEvent::Resized(size),
+                ..
+            } => unsafe {
+                gl::Viewport(0, 0, size.width as i32, size.height as i32);
+                self.ui_data
+                    .scene
+                    .lock()
+                    .unwrap()
+                    .camera
+                    .set_aspect(size.width as f32, size.height as f32);
             },
             _ => {}
         }
@@ -235,7 +271,11 @@ impl Ui {
         let draw_data = self.ui_data.context.render();
         self.ui_data
             .renderer
-            .render(self.ui_data.glow_context.as_ref(), &self.ui_data.textures, draw_data)
+            .render(
+                self.ui_data.glow_context.as_ref(),
+                &self.ui_data.textures,
+                draw_data,
+            )
             .expect("UI render failed");
     }
 }

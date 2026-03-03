@@ -1,6 +1,6 @@
+use crate::objects::Renderable;
 use crate::objects::material::Material;
 use crate::objects::shape::Shape;
-use crate::objects::Renderable;
 use crate::scene::Scene;
 use crate::texture::Texture;
 use crate::ui::Inspectable;
