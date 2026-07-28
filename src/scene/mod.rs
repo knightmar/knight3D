@@ -1,9 +1,11 @@
-use crate::objects::light::directional_light::DirectionalLight;
+use crate::TIME;
 use crate::objects::light::Lighting;
+use crate::objects::light::directional_light::DirectionalLight;
 use crate::objects::shape::{Shape, UniformValue};
 use crate::objects::{Renderable, Transform};
 use crate::scene::camera::Camera;
-use crate::TIME;
+use crate::texture::Texture;
+use gltf;
 
 pub mod camera;
 
@@ -38,8 +40,30 @@ impl<'a> Scene {
         self.shapes.remove(i as usize);
     }
 
+    pub fn load_scene_from_gltf(path: &str) {
+        let (document, buffers, images) = gltf::import(path)
+            .map_err(|e| format!("Erreur chargement GLTF: {}", e))
+            .unwrap();
+
+        let mut gl_textures: Vec<Texture> = Vec::new();
+        for image in &images {
+            let tex =
+                Texture::from_gltf_image(&image).expect("Impossible de charger la texture OpenGL");
+            gl_textures.push(tex);
+        }
+
+        if let Some(x) = document.default_scene() {
+            for n in x.nodes() {
+                println!("{:?}", n);
+            }
+        }
+    }
+
     pub fn render(&mut self) {
-        self.lighting.dir_light.transform.rotate([1.0, 1.0, 0.0], 2.0);
+        self.lighting
+            .dir_light
+            .transform
+            .rotate([1.0, 1.0, 0.0], 2.0);
 
         for shape in &self.shapes {
             shape.set_uniform(

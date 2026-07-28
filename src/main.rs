@@ -45,6 +45,11 @@ fn main() {
         gl::Viewport(0, 0, 800, 600);
         gl::Enable(gl::DEPTH_TEST);
     }
+    
+    
+    
+    let scene = Scene::load_scene_from_gltf("./level/scene.glb");
+    
 
     let mut obj = Shape::from_obj_file(
         "obj".into(),
